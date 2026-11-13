@@ -7,6 +7,7 @@ Proyecto del Equipo INNOVA — Universidad Libre, Facultad de Ingeniería (Ingen
 
 - **Etapa 0 — Base del proyecto:** identidad visual, permiso de fotos y detección de las capturas del dispositivo.
 - **Etapa 1 — Galería:** índice local, capturas agrupadas por día, detalle con zoom y compartir.
+- **Etapa 2 — Texto y búsqueda:** lectura de texto en el dispositivo (ML Kit) en segundo plano y buscador por contenido que no distingue tildes ni mayúsculas.
 
 ## Tecnología
 

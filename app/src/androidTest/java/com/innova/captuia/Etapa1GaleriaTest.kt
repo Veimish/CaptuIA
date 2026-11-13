@@ -3,6 +3,7 @@ package com.innova.captuia
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -37,7 +38,7 @@ class Etapa1GaleriaTest : PruebaBase() {
         composeRule.onAllNodes(esMiniatura).onFirst().performClick()
         esperarTexto(texto(R.string.detail_title))
         composeRule.onNodeWithText(CAPTURA_2).assertIsDisplayed()
-        composeRule.onNodeWithText(texto(R.string.detail_dimensions_value, 1080, 2400)).assertIsDisplayed()
+        composeRule.onNode(hasText("1080 × 2400 px", substring = true)).assertIsDisplayed()
         composeRule.onNodeWithText(texto(R.string.action_share)).assertIsDisplayed()
         guardarPantalla("06-detalle", esperaMillis = 2000)
 

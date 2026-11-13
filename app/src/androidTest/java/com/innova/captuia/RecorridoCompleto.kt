@@ -11,5 +11,6 @@ import org.junit.runners.Suite
 @Suite.SuiteClasses(
     Etapa0PermisosTest::class,
     Etapa1GaleriaTest::class,
+    Etapa2TextoYBusquedaTest::class,
 )
 class RecorridoCompleto

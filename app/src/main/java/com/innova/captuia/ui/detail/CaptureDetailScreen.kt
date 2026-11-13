@@ -1,6 +1,19 @@
 package com.innova.captuia.ui.detail
 
 import android.content.Context
+import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import com.innova.captuia.domain.model.TextStatus
+import com.innova.captuia.ui.components.SecondaryButton
+import com.innova.captuia.ui.theme.TealDeep
+import kotlinx.coroutines.delay
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -186,6 +199,7 @@ private const val FALLBACK_RATIO = 9f / 19.5f
 private fun InfoPanel(capture: Capture) {
     val context = LocalContext.current
     val chooserTitle = stringResource(R.string.share_chooser_title)
+    val text = capture.text.orEmpty().trim()
 
     Surface(color = White, shadowElevation = 8.dp) {
         Column(
@@ -202,50 +216,123 @@ private fun InfoPanel(capture: Capture) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            InfoRow(
-                label = stringResource(R.string.detail_date),
-                value = Formats.dateTime(capture.dateAddedMillis),
-            )
-            InfoRow(
-                label = stringResource(R.string.detail_dimensions),
-                value = stringResource(
-                    R.string.detail_dimensions_value,
+            Text(
+                text = stringResource(
+                    R.string.detail_meta,
+                    Formats.dateTime(capture.dateAddedMillis),
                     capture.width,
                     capture.height,
+                    Formats.fileSize(capture.sizeBytes),
                 ),
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSoft,
             )
-            InfoRow(
-                label = stringResource(R.string.detail_size),
-                value = Formats.fileSize(capture.sizeBytes),
-            )
-            PrimaryButton(
-                text = stringResource(R.string.action_share),
-                onClick = { context.shareCapture(capture, chooserTitle) },
+
+            RecognizedText(status = capture.textStatus, text = text)
+
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = Spacing.x1),
-            )
+                    .padding(top = Spacing.half),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                if (text.isNotEmpty()) {
+                    CopyTextButton(text = text, modifier = Modifier.weight(1f))
+                }
+                PrimaryButton(
+                    text = stringResource(R.string.action_share),
+                    onClick = { context.shareCapture(capture, chooserTitle) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
+}
+
+private const val COLLAPSED_TEXT_LINES = 3
+
+/** Texto leído de la captura: tres líneas, ampliable para verlo completo. */
+@Composable
+private fun RecognizedText(status: TextStatus, text: String) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var overflows by remember { mutableStateOf(false) }
+
+    Text(
+        text = stringResource(R.string.detail_text_label),
+        style = MaterialTheme.typography.labelLarge,
+        color = TealDeep,
+        modifier = Modifier.padding(top = Spacing.half),
+    )
+
+    when {
+        status == TextStatus.PENDING -> StatusLine(R.string.detail_text_pending)
+        status == TextStatus.FAILED -> StatusLine(R.string.detail_text_failed)
+        text.isEmpty() -> StatusLine(R.string.detail_text_none)
+        else -> {
+            SelectionContainer {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Ink,
+                    maxLines = if (expanded) Int.MAX_VALUE else COLLAPSED_TEXT_LINES,
+                    overflow = TextOverflow.Ellipsis,
+                    onTextLayout = { layout -> if (!expanded) overflows = layout.hasVisualOverflow },
+                    modifier = Modifier
+                        .heightIn(max = 220.dp)
+                        .verticalScroll(rememberScrollState()),
+                )
+            }
+            if (overflows) {
+                Text(
+                    text = stringResource(
+                        if (expanded) R.string.action_show_less_text else R.string.action_show_all_text,
+                    ),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TealDeep,
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .clickable { expanded = !expanded }
+                        .padding(vertical = Spacing.x1),
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun InfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkSoft,
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Ink,
-        )
+private fun StatusLine(@StringRes messageRes: Int) {
+    Text(
+        text = stringResource(messageRes),
+        style = MaterialTheme.typography.bodyMedium,
+        color = InkSoft,
+    )
+}
+
+private const val COPIED_FEEDBACK_MILLIS = 2000L
+
+/** Copia el texto al portapapeles y lo confirma en el propio botón durante dos segundos. */
+@Composable
+private fun CopyTextButton(text: String, modifier: Modifier = Modifier) {
+    val clipboard = LocalClipboardManager.current
+    var copied by remember { mutableStateOf(false) }
+
+    if (copied) {
+        LaunchedEffect(Unit) {
+            delay(COPIED_FEEDBACK_MILLIS)
+            copied = false
+        }
     }
+
+    SecondaryButton(
+        text = stringResource(
+            if (copied) R.string.action_text_copied else R.string.action_copy_text,
+        ),
+        onClick = {
+            clipboard.setText(AnnotatedString(text))
+            copied = true
+        },
+        modifier = modifier.heightIn(min = 52.dp),
+    )
 }
 
 /** Abre el selector del sistema para enviar la imagen a otra app. */

@@ -79,6 +79,18 @@ abstract class PruebaBase {
         indexarEnGaleria(nombreArchivo)
     }
 
+    /**
+     * Pone en la carpeta de capturas del dispositivo una de las imágenes de
+     * ejemplo (ci/muestras), como si el usuario acabara de tomarla.
+     */
+    protected fun copiarMuestraComoCaptura(muestra: String, nombreArchivo: String) {
+        device.executeShellCommand("mkdir -p $CARPETA_CAPTURAS")
+        device.executeShellCommand("cp $CARPETA_MUESTRAS/$muestra $CARPETA_CAPTURAS/$nombreArchivo")
+        indexarEnGaleria(nombreArchivo)
+        // MediaStore registra la fecha en segundos: se separan para conservar el orden.
+        Thread.sleep(1100)
+    }
+
     /** Borra una captura del dispositivo, como lo haría el usuario desde su galería. */
     protected fun borrarCapturaEnDispositivo(nombreArchivo: String) {
         device.executeShellCommand("rm $CARPETA_CAPTURAS/$nombreArchivo")
@@ -109,6 +121,7 @@ abstract class PruebaBase {
     protected companion object {
         const val CARPETA_QA = "/sdcard/Download/captuia-qa"
         const val CARPETA_CAPTURAS = "/sdcard/Pictures/Screenshots"
+        const val CARPETA_MUESTRAS = "/data/local/tmp/captuia-muestras"
         const val CAPTURA_1 = "Screenshot_20261113-101500.png"
         const val CAPTURA_2 = "Screenshot_20261113-101530.png"
     }

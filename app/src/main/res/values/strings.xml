@@ -34,6 +34,16 @@
     <string name="day_yesterday">Ayer</string>
     <string name="capture_thumbnail_description">Captura del %1$s</string>
     <string name="action_open_capture">Abrir captura</string>
+    <string name="home_reading_progress">Leyendo el texto de tus capturas: %1$s de %2$s listas.</string>
+
+    <!-- Búsqueda -->
+    <string name="search_placeholder">Buscar por contenido…</string>
+    <string name="action_clear_search">Borrar búsqueda</string>
+    <string name="search_count_one">1 resultado</string>
+    <string name="search_count_many">%1$s resultados</string>
+    <string name="search_empty_title">Sin resultados para «%1$s»</string>
+    <string name="search_empty_text">Prueba con otra palabra. La búsqueda mira el texto que aparece dentro de tus capturas.</string>
+
     <string name="home_empty_title">Aún no encontramos capturas</string>
     <string name="home_empty_text">Toma una captura de pantalla y vuelve a CaptuIA: aparecerá aquí al instante.</string>
     <string name="home_error">No pudimos leer tu galería. Revisa el permiso de fotos e inténtalo de nuevo.</string>
@@ -42,10 +52,15 @@
     <!-- Detalle de captura -->
     <string name="detail_title">Captura</string>
     <string name="action_back">Volver</string>
-    <string name="detail_date">Fecha</string>
-    <string name="detail_dimensions">Dimensiones</string>
-    <string name="detail_dimensions_value">%1$d × %2$d px</string>
-    <string name="detail_size">Tamaño</string>
+    <string name="detail_meta">%1$s · %2$d × %3$d px · %4$s</string>
+    <string name="detail_text_label">Texto reconocido</string>
+    <string name="detail_text_pending">CaptuIA aún no ha leído esta captura. Estará lista en un momento.</string>
+    <string name="detail_text_none">Esta captura no tiene texto.</string>
+    <string name="detail_text_failed">No se pudo leer esta captura.</string>
+    <string name="action_copy_text">Copiar texto</string>
+    <string name="action_text_copied">Texto copiado</string>
+    <string name="action_show_all_text">Ver todo el texto</string>
+    <string name="action_show_less_text">Ver menos</string>
     <string name="action_share">Compartir</string>
     <string name="share_chooser_title">Compartir captura</string>
 </resources>

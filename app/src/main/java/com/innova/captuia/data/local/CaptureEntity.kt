@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 /** Fila del índice local. La clave es el identificador de la imagen en MediaStore. */
 @Entity(
     tableName = "captures",
-    indices = [Index(value = ["dateAddedMillis"])],
+    indices = [Index(value = ["dateAddedMillis"]), Index(value = ["textStatus"])],
 )
 data class CaptureEntity(
     @PrimaryKey val mediaId: Long,
@@ -17,4 +17,10 @@ data class CaptureEntity(
     val width: Int,
     val height: Int,
     val sizeBytes: Long,
+    /** Nombre de un valor de TextStatus. */
+    val textStatus: String,
+    /** Texto reconocido tal como se leyó. */
+    val recognizedText: String?,
+    /** El mismo texto en minúsculas y sin tildes, para buscar. */
+    val searchText: String?,
 )

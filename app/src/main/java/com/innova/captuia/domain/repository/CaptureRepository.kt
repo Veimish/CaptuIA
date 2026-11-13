@@ -1,6 +1,7 @@
 package com.innova.captuia.domain.repository
 
 import com.innova.captuia.domain.model.Capture
+import com.innova.captuia.domain.model.TextProgress
 import kotlinx.coroutines.flow.Flow
 
 /** Acceso al índice de capturas de CaptuIA. */
@@ -13,8 +14,26 @@ interface CaptureRepository {
     fun observeById(id: Long): Flow<Capture?>
 
     /**
+     * Capturas cuyo texto contiene todas las palabras de [query], sin
+     * distinguir mayúsculas ni tildes. Una consulta vacía no devuelve nada.
+     */
+    fun search(query: String): Flow<List<Capture>>
+
+    /** Cuántas capturas faltan por leer. */
+    fun observeTextProgress(): Flow<TextProgress>
+
+    /**
      * Iguala el índice con la galería del dispositivo: agrega las capturas
      * nuevas y retira las que el usuario borró.
      */
     suspend fun syncWithDevice()
+
+    /** Siguientes capturas sin leer, de la más reciente a la más antigua. */
+    suspend fun nextPendingText(limit: Int): List<Capture>
+
+    /** Guarda el texto leído de una captura. */
+    suspend fun saveText(id: Long, text: String)
+
+    /** Marca que la captura no se pudo leer. */
+    suspend fun markTextFailed(id: Long)
 }
