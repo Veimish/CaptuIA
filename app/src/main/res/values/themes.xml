@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema de la ventana. La interfaz se dibuja con Compose (ui/theme). -->
+    <style name="Theme.CaptuIA" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/captu_paper</item>
+    </style>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta CaptuIA (infografía y landing del Equipo INNOVA) -->
+    <color name="captu_teal_dark">#FF2F8F83</color>
+    <color name="captu_teal">#FF4FB3A9</color>
+    <color name="captu_teal_light">#FFA7E8DC</color>
+    <color name="captu_white">#FFFFFFFF</color>
+    <color name="captu_amber">#FFF5C445</color>
+    <color name="captu_ink">#FF123832</color>
+    <color name="captu_paper">#FFF4FBF9</color>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CaptuIA</string>
+    <string name="brand_prefix">Captu</string>
+    <string name="brand_suffix">IA</string>
+    <string name="brand_mark_description">Logo de CaptuIA</string>
+
+    <!-- Bienvenida -->
+    <string name="welcome_headline">Tus capturas de pantalla, organizadas solas.</string>
+    <string name="welcome_lead">CaptuIA revisa lo que guardas en tu galería y lo agrupa por tema, para que encuentres cualquier captura en segundos.</string>
+    <string name="welcome_how_kicker">Cómo funciona</string>
+    <string name="welcome_step1_title">Captura como siempre</string>
+    <string name="welcome_step1_text">Sigues tomando capturas de forma normal, desde cualquier app.</string>
+    <string name="welcome_step2_title">Lee el contenido</string>
+    <string name="welcome_step2_text">CaptuIA reconoce el texto para identificar de qué trata cada captura.</string>
+    <string name="welcome_step3_title">Crea categorías solas</string>
+    <string name="welcome_step3_text">Agrupa por tema: documentos, tareas, cursos, imágenes y más.</string>
+    <string name="welcome_step4_title">Ajusta con tu rutina</string>
+    <string name="welcome_step4_text">Con tu horario de clases afina el resto de las carpetas.</string>
+    <string name="welcome_privacy">Todo se procesa en tu celular. Tus capturas no se suben a ningún servidor.</string>
+    <string name="welcome_cta">Permitir acceso a mis capturas</string>
+    <string name="welcome_denied">Sin este permiso CaptuIA no puede encontrar tus capturas. Puedes intentarlo de nuevo o activarlo desde los ajustes del sistema.</string>
+    <string name="welcome_partial">Diste acceso solo a algunas fotos. Para detectar tus capturas nuevas automáticamente, CaptuIA necesita acceso a todas.</string>
+    <string name="welcome_continue_partial">Continuar con acceso limitado</string>
+    <string name="action_open_settings">Abrir ajustes del sistema</string>
+
+    <!-- Inicio -->
+    <string name="home_title">Tus capturas</string>
+    <string name="home_loading">Buscando capturas en tu dispositivo…</string>
+    <string name="home_found_one">captura encontrada en tu dispositivo</string>
+    <string name="home_found_many">capturas encontradas en tu dispositivo</string>
+    <string name="home_latest">Última captura: %1$s</string>
+    <string name="home_empty_title">Aún no encontramos capturas</string>
+    <string name="home_empty_text">Toma una captura de pantalla y vuelve a CaptuIA: aparecerá aquí al instante.</string>
+    <string name="home_error">No pudimos leer tu galería. Revisa el permiso de fotos e inténtalo de nuevo.</string>
+    <string name="home_partial">Acceso limitado: CaptuIA solo ve las fotos que seleccionaste.</string>
+    <string name="home_refresh">Volver a buscar</string>
+    <string name="home_stage_note">Versión de desarrollo · Etapa 0: base del proyecto y detección de capturas.</string>
+</resources>
