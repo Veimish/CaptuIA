@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -100,6 +101,39 @@ fun BrandHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineLarge,
+            color = White,
+        )
+    }
+}
+
+/**
+ * Cabecera compacta para pantallas secundarias: botón de volver y título.
+ */
+@Composable
+fun CompactHeader(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Brush.verticalGradient(listOf(TealDark, TealDeep)))
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(horizontal = Spacing.x1, vertical = Spacing.x1),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = stringResource(R.string.action_back),
+                tint = White,
+            )
+        }
+        Spacer(Modifier.width(Spacing.half))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
             color = White,
         )
     }

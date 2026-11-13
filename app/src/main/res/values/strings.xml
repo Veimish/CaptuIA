@@ -27,13 +27,25 @@
     <!-- Inicio -->
     <string name="home_title">Tus capturas</string>
     <string name="home_loading">Buscando capturas en tu dispositivo…</string>
-    <string name="home_found_one">captura encontrada en tu dispositivo</string>
-    <string name="home_found_many">capturas encontradas en tu dispositivo</string>
-    <string name="home_latest">Última captura: %1$s</string>
+    <string name="home_count_one">1 captura</string>
+    <string name="home_count_many">%1$s capturas</string>
+    <string name="home_count_caption">Detectadas en tu dispositivo, de la más reciente a la más antigua.</string>
+    <string name="day_today">Hoy</string>
+    <string name="day_yesterday">Ayer</string>
+    <string name="capture_thumbnail_description">Captura del %1$s</string>
+    <string name="action_open_capture">Abrir captura</string>
     <string name="home_empty_title">Aún no encontramos capturas</string>
     <string name="home_empty_text">Toma una captura de pantalla y vuelve a CaptuIA: aparecerá aquí al instante.</string>
     <string name="home_error">No pudimos leer tu galería. Revisa el permiso de fotos e inténtalo de nuevo.</string>
     <string name="home_partial">Acceso limitado: CaptuIA solo ve las fotos que seleccionaste.</string>
-    <string name="home_refresh">Volver a buscar</string>
-    <string name="home_stage_note">Versión de desarrollo · Etapa 0: base del proyecto y detección de capturas.</string>
+
+    <!-- Detalle de captura -->
+    <string name="detail_title">Captura</string>
+    <string name="action_back">Volver</string>
+    <string name="detail_date">Fecha</string>
+    <string name="detail_dimensions">Dimensiones</string>
+    <string name="detail_dimensions_value">%1$d × %2$d px</string>
+    <string name="detail_size">Tamaño</string>
+    <string name="action_share">Compartir</string>
+    <string name="share_chooser_title">Compartir captura</string>
 </resources>

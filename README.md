@@ -5,7 +5,8 @@ Proyecto del Equipo INNOVA — Universidad Libre, Facultad de Ingeniería (Ingen
 
 ## Estado
 
-**Etapa 0 — Base del proyecto:** identidad visual, permiso de fotos y detección de las capturas del dispositivo.
+- **Etapa 0 — Base del proyecto:** identidad visual, permiso de fotos y detección de las capturas del dispositivo.
+- **Etapa 1 — Galería:** índice local, capturas agrupadas por día, detalle con zoom y compartir.
 
 ## Tecnología
 
