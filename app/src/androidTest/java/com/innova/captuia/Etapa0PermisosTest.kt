@@ -54,6 +54,7 @@ class Etapa0PermisosTest : PruebaBase() {
     }
 
     private fun esperarDialogoDePermisos() {
+        cerrarDialogosDelSistema()
         val aparecio = device.wait(
             Until.hasObject(By.res(Pattern.compile(".*:id/permission_.*button"))),
             15_000,

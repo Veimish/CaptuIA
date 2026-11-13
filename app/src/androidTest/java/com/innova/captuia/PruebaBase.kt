@@ -5,8 +5,11 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.lifecycle.Lifecycle
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import org.junit.Before
 import org.junit.Rule
+import java.util.regex.Pattern
 
 /**
  * Utilidades comunes de las pruebas de interfaz. Cada prueba usa la app real
@@ -19,6 +22,21 @@ abstract class PruebaBase {
 
     protected val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     protected val device: UiDevice get() = UiDevice.getInstance(instrumentation)
+
+    /**
+     * Un emulador lento puede mostrar "La app X no responde" sobre la pantalla.
+     * No es parte de CaptuIA: se pulsa "Esperar" para que no tape lo que se prueba.
+     */
+    @Before
+    fun cerrarDialogosDelSistema() {
+        repeat(3) {
+            val esperar = device.findObject(By.res("android", "aerr_wait"))
+                ?: device.findObject(By.text(Pattern.compile("(?i)^(wait|esperar)$")))
+                ?: return
+            esperar.click()
+            device.waitForIdle()
+        }
+    }
 
     protected fun texto(id: Int, vararg args: Any): String =
         instrumentation.targetContext.getString(id, *args)

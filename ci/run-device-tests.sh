@@ -3,6 +3,9 @@
 set -x
 mkdir -p qa
 adb shell rm -rf /sdcard/Download/captuia-qa /sdcard/Pictures/Screenshots
+# El emulador de CI es lento al arrancar y a veces muestra "X isn't responding" sobre la app.
+# Se ocultan esos diálogos del sistema para que no tapen la pantalla que se prueba.
+adb shell settings put global hide_error_dialogs 1
 adb logcat -c || true
 
 ./gradlew --no-daemon connectedDebugAndroidTest 2>&1 | tee qa/pruebas-dispositivo.log
