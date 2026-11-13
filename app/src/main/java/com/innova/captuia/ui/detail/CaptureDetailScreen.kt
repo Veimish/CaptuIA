@@ -3,7 +3,9 @@ package com.innova.captuia.ui.detail
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
@@ -29,7 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -51,6 +56,7 @@ import com.innova.captuia.ui.components.PrimaryButton
 import com.innova.captuia.ui.format.Formats
 import com.innova.captuia.ui.theme.Ink
 import com.innova.captuia.ui.theme.InkSoft
+import com.innova.captuia.ui.theme.Line
 import com.innova.captuia.ui.theme.Paper
 import com.innova.captuia.ui.theme.Spacing
 import com.innova.captuia.ui.theme.White
@@ -136,6 +142,16 @@ private fun ZoomableImage(capture: Capture, modifier: Modifier = Modifier) {
             .transformable(state = transformState),
         contentAlignment = Alignment.Center,
     ) {
+        // El marco toma la proporción real de la captura para dibujarle borde y sombra:
+        // así se distingue del fondo aunque la captura sea de una pantalla clara.
+        val imageRatio = if (capture.width > 0 && capture.height > 0) {
+            capture.width.toFloat() / capture.height.toFloat()
+        } else {
+            FALLBACK_RATIO
+        }
+        val areaRatio = if (size.height > 0) size.width.toFloat() / size.height.toFloat() else 1f
+        val frameShape = MaterialTheme.shapes.small
+
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(capture.contentUri)
@@ -147,17 +163,24 @@ private fun ZoomableImage(capture: Capture, modifier: Modifier = Modifier) {
             ),
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .fillMaxSize()
                 .padding(Spacing.x2)
+                .aspectRatio(imageRatio, matchHeightConstraintsFirst = imageRatio < areaRatio)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
                     translationX = offset.x
                     translationY = offset.y
-                },
+                }
+                .shadow(elevation = 6.dp, shape = frameShape)
+                .clip(frameShape)
+                .background(White)
+                .border(BorderStroke(1.dp, Line), frameShape),
         )
     }
 }
+
+/** Proporción típica de una captura vertical, por si el sistema no informa las dimensiones. */
+private const val FALLBACK_RATIO = 9f / 19.5f
 
 @Composable
 private fun InfoPanel(capture: Capture) {

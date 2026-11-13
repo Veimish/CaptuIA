@@ -3,6 +3,8 @@
 set -e
 mkdir -p qa
 cp app/build/outputs/apk/debug/app-debug.apk qa/captuia-debug.apk 2>/dev/null || true
+mkdir -p qa/resultados-unitarias
+cp app/build/test-results/testDebugUnitTest/*.xml qa/resultados-unitarias/ 2>/dev/null || true
 {
   echo "commit=${GITHUB_SHA}"
   echo "run=${GITHUB_RUN_ID}"

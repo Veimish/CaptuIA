@@ -1,7 +1,7 @@
 package com.innova.captuia.ui.format
 
-import java.text.DateFormat
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -20,8 +20,7 @@ object Formats {
 
     /** Ejemplo: "13 nov 2026, 5:34 p. m." */
     fun dateTime(millis: Long): String =
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale)
-            .format(Date(millis))
+        SimpleDateFormat("d MMM yyyy, h:mm a", locale).format(Date(millis))
 
     /** Ejemplo: "13 de noviembre de 2026" */
     fun day(date: LocalDate): String = date.format(longDay)
