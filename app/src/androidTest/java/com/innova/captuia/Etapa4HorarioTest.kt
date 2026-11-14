@@ -1,5 +1,6 @@
 package com.innova.captuia
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
@@ -78,29 +79,23 @@ class Etapa4HorarioTest : PruebaBase() {
         // 2. El formulario no deja guardar datos incompletos o incoherentes.
         composeRule.onNodeWithText(texto(R.string.action_add_subject)).performClick()
         esperar(hasTestTag(SUBJECT_NAME_TAG))
-        guardar()
-        esperarTexto(texto(R.string.subject_error_name_empty))
+        guardarYEsperar(hasText(texto(R.string.subject_error_name_empty)))
         escribir(SUBJECT_NAME_TAG, "tareas")
-        guardar()
-        esperarTexto(texto(R.string.subject_error_name_duplicate))
+        guardarYEsperar(hasText(texto(R.string.subject_error_name_duplicate)))
         escribir(SUBJECT_NAME_TAG, poo)
-        guardar()
-        esperarTexto(texto(R.string.subject_error_day_missing))
+        guardarYEsperar(hasText(texto(R.string.subject_error_day_missing)))
         pulsar(sessionDayTag(0, otroDia))
-        guardar()
-        esperarTexto(texto(R.string.subject_error_time_invalid))
+        guardarYEsperar(hasText(texto(R.string.subject_error_time_invalid)))
         escribir(sessionStartTag(0), "9:00")
         escribir(sessionEndTag(0), "7:00")
-        guardar()
-        esperarTexto(texto(R.string.subject_error_end_before_start))
+        guardarYEsperar(hasText(texto(R.string.subject_error_end_before_start)))
         ocultarTeclado()
         guardarPantalla("29-formulario-con-error", esperaMillis = 1000)
 
         // 3. Con los datos correctos la materia queda en el horario.
         escribir(sessionStartTag(0), "7:00")
         escribir(sessionEndTag(0), "9:00")
-        guardar()
-        esperar(hasTestTag(subjectCardTag(poo)))
+        guardarYEsperar(hasTestTag(subjectCardTag(poo)))
         composeRule.onNode(
             hasTestTag(subjectCardTag(poo)) and hasText("${texto(otroDia.nameRes())} · 07:00 – 09:00"),
         ).assertIsDisplayed()
@@ -148,12 +143,10 @@ class Etapa4HorarioTest : PruebaBase() {
         pulsar(sessionDayTag(1, hoy))
         escribir(sessionStartTag(1), "10:00")
         escribir(sessionEndTag(1), "12:00")
-        guardar()
-        esperarTexto(texto(R.string.subject_error_overlap_same))
+        guardarYEsperar(hasText(texto(R.string.subject_error_overlap_same)))
         pulsar(sessionDayTag(1, otroDia))
         escribir(sessionStartTag(1), "8:00")
-        guardar()
-        esperarTexto(texto(R.string.subject_error_overlap_other, poo))
+        guardarYEsperar(hasText(texto(R.string.subject_error_overlap_other, poo)))
         ocultarTeclado()
         composeRule.onNodeWithText(texto(R.string.subject_error_overlap_other, poo)).performScrollTo()
         guardarPantalla("33-cruce-de-horarios", esperaMillis = 1000)
@@ -162,8 +155,7 @@ class Etapa4HorarioTest : PruebaBase() {
         pulsar(sessionDayTag(1, ayer))
         escribir(sessionStartTag(1), "0:00")
         escribir(sessionEndTag(1), "23:59")
-        guardar()
-        esperar(hasTestTag(subjectCardTag(bases)))
+        guardarYEsperar(hasTestTag(subjectCardTag(bases)))
         guardarPantalla("34-horario-con-dos-materias", esperaMillis = 1000)
 
         // 6. Las capturas de contenido académico tomadas en clase pasan a la materia:
@@ -206,8 +198,7 @@ class Etapa4HorarioTest : PruebaBase() {
             "El formulario no cargó las horas guardadas de la materia."
         }
         escribir(SUBJECT_NAME_TAG, basesRenombrada)
-        guardar()
-        esperar(hasTestTag(subjectCardTag(basesRenombrada)))
+        guardarYEsperar(hasTestTag(subjectCardTag(basesRenombrada)))
         check(!existe(hasTestTag(subjectCardTag(bases)))) { "La materia sigue con el nombre anterior." }
 
         // 8. Eliminar una materia: sus capturas no se pierden, vuelven a sus carpetas.
@@ -238,8 +229,23 @@ class Etapa4HorarioTest : PruebaBase() {
         guardarPantalla("38-inicio-final", esperaMillis = 1000)
     }
 
-    private fun guardar() {
-        composeRule.onNodeWithText(texto(R.string.action_save_subject)).performClick()
+    /**
+     * Pulsa "Guardar materia" y espera el resultado (un mensaje de error o la pantalla siguiente).
+     * Si el toque coincide con el movimiento del teclado al abrirse puede no llegar al botón,
+     * así que se repite mientras el formulario siga igual.
+     */
+    private fun guardarYEsperar(resultado: SemanticsMatcher) {
+        val botonGuardar = hasText(texto(R.string.action_save_subject))
+        repeat(4) {
+            if (existe(botonGuardar)) composeRule.onNode(botonGuardar).performClick()
+            try {
+                composeRule.waitUntil(timeoutMillis = 6_000) { existe(resultado) }
+                return
+            } catch (sinResultado: ComposeTimeoutException) {
+                // Se intenta de nuevo.
+            }
+        }
+        error("El formulario no respondió al guardar la materia.")
     }
 
     private fun volver() {

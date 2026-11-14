@@ -154,8 +154,7 @@ def main():
     screenshot("40-entrega-horario")
 
     # 3. Vuelve a Inicio, abre una carpeta y el detalle de una captura.
-    hide_keyboard()
-    adb("shell", "input", "keyevent", "BACK")
+    tap_when_visible("botón Volver", lambda node: node.get("content-desc") == "Volver")
     wait_for("Inicio con la materia registrada", has("Horario de clases", "1 materia registrada"))
     tap_when_visible("carpeta Imágenes", has("genes", "1 captura"))
     tap_when_visible("miniatura de la captura", has("Captura del"))
