@@ -101,6 +101,12 @@ class DefaultCaptureRepository(
             limit = limit,
         ).map { it.toDomain() }
 
+    override suspend fun automaticallyClassified(): List<Capture> =
+        dao.automaticallyClassified(
+            autoSource = FolderSource.AUTO.name,
+            readyStatus = TextStatus.READY.name,
+        ).map { it.toDomain() }
+
     override suspend fun assignFolderAutomatically(captureId: Long, folderId: Long) {
         dao.assignAutomatically(
             id = captureId,

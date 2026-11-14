@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.innova.captuia.R
 import com.innova.captuia.domain.model.Folder
+import com.innova.captuia.domain.model.FolderKind
 import com.innova.captuia.domain.model.SystemFolder
 import com.innova.captuia.ui.theme.Amber
 import com.innova.captuia.ui.theme.Ink
@@ -42,12 +43,19 @@ data class FolderVisual(
         val New = FolderVisual(R.drawable.ic_plus, Paper, TealDeep, outlined = true)
         private val Custom = FolderVisual(R.drawable.ic_folder, Paper, TealDeep, outlined = true)
 
-        fun of(folder: Folder): FolderVisual = when (folder.systemKey) {
-            SystemFolder.DOCUMENTS -> FolderVisual(R.drawable.ic_folder, TealDark, White)
-            SystemFolder.TASKS -> FolderVisual(R.drawable.ic_folder_tasks, Teal, White)
-            SystemFolder.COURSES -> FolderVisual(R.drawable.ic_folder_courses, TealLight, Ink)
-            SystemFolder.IMAGES -> FolderVisual(R.drawable.ic_folder_images, Amber, Ink)
-            null -> Custom
+        val Schedule = FolderVisual(R.drawable.ic_calendar, TealDeep, White)
+        private val Subject = FolderVisual(R.drawable.ic_subject, Paper, TealDeep, outlined = true)
+
+        fun of(folder: Folder): FolderVisual = when (folder.kind) {
+            FolderKind.SUBJECT -> Subject
+            FolderKind.CUSTOM -> Custom
+            FolderKind.SYSTEM -> when (folder.systemKey) {
+                SystemFolder.DOCUMENTS -> FolderVisual(R.drawable.ic_folder, TealDark, White)
+                SystemFolder.TASKS -> FolderVisual(R.drawable.ic_folder_tasks, Teal, White)
+                SystemFolder.COURSES -> FolderVisual(R.drawable.ic_folder_courses, TealLight, Ink)
+                SystemFolder.IMAGES -> FolderVisual(R.drawable.ic_folder_images, Amber, Ink)
+                null -> Custom
+            }
         }
     }
 }

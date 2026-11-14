@@ -17,9 +17,11 @@ data class FolderEntity(
     val name: String,
     /** Nombre normalizado: impide dos carpetas que solo difieran en mayúsculas o tildes. */
     val nameKey: String,
-    /** Nombre de un valor de SystemFolder; null en las carpetas del usuario. */
+    /** Nombre de un valor de FolderKind. */
+    val kind: String,
+    /** Nombre de un valor de SystemFolder; null si no es una carpeta del sistema. */
     val systemKey: String?,
-    /** Las del sistema van primero, en el orden de la landing. */
+    /** Las del sistema van primero (en el orden de la landing), luego las materias y luego las del usuario. */
     val sortOrder: Int,
 )
 

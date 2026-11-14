@@ -71,9 +71,9 @@ class Etapa2TextoYBusquedaTest : PruebaBase() {
         esperar(filaConConteo(FOLDER_ALL_TAG, 5))
 
         // 8. Desde un resultado se abre el detalle con el texto leído, y se puede copiar.
-        buscar("horario")
+        buscar("semestre")
         esperarTexto(texto(R.string.search_count_one))
-        composeRule.onNode(hasText("Horario de clases", substring = true)).performClick()
+        composeRule.onNode(hasText("Semestre", substring = true)).performClick()
         esperarTexto(texto(R.string.detail_text_label))
         composeRule.onNode(hasText("Cálculo Diferencial", substring = true)).assertExists()
         composeRule.onNode(hasText("Bases de Datos", substring = true)).assertExists()

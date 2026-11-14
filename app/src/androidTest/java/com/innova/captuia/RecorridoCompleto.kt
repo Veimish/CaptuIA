@@ -13,5 +13,6 @@ import org.junit.runners.Suite
     Etapa1GaleriaTest::class,
     Etapa2TextoYBusquedaTest::class,
     Etapa3CarpetasTest::class,
+    Etapa4HorarioTest::class,
 )
 class RecorridoCompleto

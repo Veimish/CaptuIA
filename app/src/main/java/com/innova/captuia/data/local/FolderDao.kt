@@ -33,9 +33,16 @@ interface FolderDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(folder: FolderEntity): Long
 
-    @Query("UPDATE folders SET name = :name, nameKey = :nameKey WHERE id = :id AND systemKey IS NULL")
-    suspend fun rename(id: Long, name: String, nameKey: String)
+    @Query("SELECT * FROM folders WHERE kind = :kind ORDER BY name COLLATE NOCASE")
+    fun observeByKind(kind: String): Flow<List<FolderEntity>>
 
-    @Query("DELETE FROM folders WHERE id = :id AND systemKey IS NULL")
-    suspend fun deleteCustom(id: Long)
+    @Query("SELECT * FROM folders WHERE kind = :kind ORDER BY name COLLATE NOCASE")
+    suspend fun byKind(kind: String): List<FolderEntity>
+
+    /** Las carpetas del sistema no se renombran ni se eliminan. */
+    @Query("UPDATE folders SET name = :name, nameKey = :nameKey WHERE id = :id AND kind = :kind")
+    suspend fun rename(id: Long, kind: String, name: String, nameKey: String)
+
+    @Query("DELETE FROM folders WHERE id = :id AND kind = :kind")
+    suspend fun delete(id: Long, kind: String)
 }

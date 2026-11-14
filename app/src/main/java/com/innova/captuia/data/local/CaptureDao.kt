@@ -75,4 +75,8 @@ interface CaptureDao {
     /** Deja sin carpeta las capturas de [folderId] para que se vuelvan a clasificar. */
     @Query("UPDATE captures SET folderId = NULL, folderSource = :noneSource WHERE folderId = :folderId")
     suspend fun releaseFromFolder(folderId: Long, noneSource: String)
+
+    /** Capturas que CaptuIA clasificó por su cuenta (se pueden volver a evaluar si cambia el horario). */
+    @Query("SELECT * FROM captures WHERE folderSource = :autoSource AND textStatus = :readyStatus")
+    suspend fun automaticallyClassified(autoSource: String, readyStatus: String): List<CaptureEntity>
 }

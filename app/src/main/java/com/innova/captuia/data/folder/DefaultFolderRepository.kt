@@ -6,6 +6,7 @@ import com.innova.captuia.data.local.FolderEntity
 import com.innova.captuia.domain.folder.FolderNameCheck
 import com.innova.captuia.domain.folder.FolderNameValidator
 import com.innova.captuia.domain.model.Folder
+import com.innova.captuia.domain.model.FolderKind
 import com.innova.captuia.domain.model.FolderSource
 import com.innova.captuia.domain.model.FolderSummary
 import com.innova.captuia.domain.model.SystemFolder
@@ -40,6 +41,7 @@ class DefaultFolderRepository(
                 FolderEntity(
                     name = name,
                     nameKey = FolderNameValidator.key(name),
+                    kind = FolderKind.SYSTEM.name,
                     systemKey = key.name,
                     sortOrder = key.ordinal,
                 )
@@ -61,8 +63,9 @@ class DefaultFolderRepository(
                 FolderEntity(
                     name = check.name,
                     nameKey = FolderNameValidator.key(check.name),
+                    kind = FolderKind.CUSTOM.name,
                     systemKey = null,
-                    sortOrder = CUSTOM_SORT_ORDER,
+                    sortOrder = FolderSortOrder.CUSTOM,
                 ),
             )
         }
@@ -71,8 +74,8 @@ class DefaultFolderRepository(
 
     override suspend fun rename(id: Long, name: String): FolderNameCheck = database.withTransaction {
         val current = folderDao.byId(id)
-        if (current == null || current.systemKey != null) {
-            // Las carpetas del sistema no se renombran.
+        if (current == null || current.kind != FolderKind.CUSTOM.name) {
+            // Solo se renombran aquí las carpetas del usuario; las materias, desde el horario.
             return@withTransaction FolderNameCheck.Empty
         }
         val check = FolderNameValidator.check(
@@ -81,7 +84,7 @@ class DefaultFolderRepository(
             currentName = current.name,
         )
         if (check is FolderNameCheck.Valid) {
-            folderDao.rename(id, check.name, FolderNameValidator.key(check.name))
+            folderDao.rename(id, FolderKind.CUSTOM.name, check.name, FolderNameValidator.key(check.name))
         }
         check
     }
@@ -89,21 +92,24 @@ class DefaultFolderRepository(
     override suspend fun delete(id: Long) {
         database.withTransaction {
             val folder = folderDao.byId(id)
-            if (folder != null && folder.systemKey == null) {
+            if (folder != null && folder.kind == FolderKind.CUSTOM.name) {
                 captureDao.releaseFromFolder(id, FolderSource.NONE.name)
-                folderDao.deleteCustom(id)
+                folderDao.delete(id, FolderKind.CUSTOM.name)
             }
         }
     }
 
-    private companion object {
-        /** Las carpetas del usuario van después de las del sistema. */
-        const val CUSTOM_SORT_ORDER = 100
-    }
 }
 
-private fun FolderEntity.toDomain() = Folder(
+/** Posición de cada tipo de carpeta en las listas: sistema (0 a 3), materias y carpetas del usuario. */
+object FolderSortOrder {
+    const val SUBJECT = 50
+    const val CUSTOM = 100
+}
+
+fun FolderEntity.toDomain() = Folder(
     id = id,
     name = name,
+    kind = FolderKind.entries.firstOrNull { it.name == kind } ?: FolderKind.CUSTOM,
     systemKey = SystemFolder.entries.firstOrNull { it.name == systemKey },
 )

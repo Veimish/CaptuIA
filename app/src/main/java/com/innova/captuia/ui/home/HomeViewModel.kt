@@ -12,6 +12,7 @@ import com.innova.captuia.CaptuIAApplication
 import com.innova.captuia.domain.folder.FolderNameCheck
 import com.innova.captuia.domain.model.Capture
 import com.innova.captuia.domain.model.CaptureFilter
+import com.innova.captuia.domain.model.FolderKind
 import com.innova.captuia.domain.model.FolderSummary
 import com.innova.captuia.domain.model.TextProgress
 import com.innova.captuia.domain.repository.CaptureRepository
@@ -51,7 +52,10 @@ data class HomeUiState(
     /** True solo mientras se hace la primera lectura de la galería. */
     val isLoading: Boolean = true,
     val total: Int = 0,
+    /** Carpetas del sistema y del usuario. */
     val folders: List<FolderSummary> = emptyList(),
+    /** Carpetas de las materias del horario de clases. */
+    val subjects: List<FolderSummary> = emptyList(),
     /** Capturas que aún no tienen carpeta (sin leer o que no se pudieron leer). */
     val unclassified: Int = 0,
     val recent: List<Capture> = emptyList(),
@@ -117,7 +121,8 @@ class HomeViewModel(
             HomeUiState(
                 isLoading = !sync.finishedOnce && all.isEmpty(),
                 total = all.size,
-                folders = summaries,
+                folders = summaries.filter { it.folder.kind != FolderKind.SUBJECT },
+                subjects = summaries.filter { it.folder.kind == FolderKind.SUBJECT },
                 unclassified = all.count { it.folderId == null },
                 recent = all.take(RECENT_COUNT),
                 hasError = sync.failed,

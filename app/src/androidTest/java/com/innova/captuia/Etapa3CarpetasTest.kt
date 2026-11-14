@@ -27,6 +27,8 @@ import org.junit.runner.RunWith
  * carpetas propias (crear, renombrar, eliminar).
  * Continúa desde el estado que deja la Etapa 2: cinco capturas ya leídas
  * (una pantalla de la app, un horario, una tarea, un chat y una foto).
+ * La pantalla de la app es el Inicio vacío, que muestra "Horario de clases":
+ * por esas palabras va a Cursos, igual que el horario.
  */
 @RunWith(AndroidJUnit4::class)
 class Etapa3CarpetasTest : PruebaBase() {
@@ -42,16 +44,16 @@ class Etapa3CarpetasTest : PruebaBase() {
         esperarTexto(texto(R.string.home_title))
 
         // 1. CaptuIA ya repartió las cinco capturas en sus carpetas, sin intervención.
-        esperar(filaConConteo(cursos, 1), timeoutMillis = 60_000)
+        esperar(filaConConteo(cursos, 2), timeoutMillis = 60_000)
         esperar(filaConConteo(tareas, 2))
-        esperar(filaConConteo(documentos, 1))
+        esperar(filaConConteo(documentos, 0))
         esperar(filaConConteo(imagenes, 1))
         check(!existe(hasTestTag(FOLDER_UNCLASSIFIED_TAG))) { "No debería quedar ninguna captura sin clasificar." }
         guardarPantalla("17-inicio-con-carpetas", esperaMillis = 1500)
 
-        // 2. Cursos contiene el horario, y el detalle explica por qué está ahí.
+        // 2. Cursos contiene el horario (la más reciente), y el detalle explica por qué está ahí.
         composeRule.onNodeWithTag(cursos).performClick()
-        esperarTexto(conteo(1))
+        esperarTexto(conteo(2))
         guardarPantalla("18-carpeta-cursos", esperaMillis = 1500)
         composeRule.onAllNodes(esMiniatura).onFirst().performClick()
         esperarTexto(texto(R.string.detail_title))
@@ -72,9 +74,9 @@ class Etapa3CarpetasTest : PruebaBase() {
         guardarPantalla("21-detalle-movida", esperaMillis = 500)
 
         composeRule.onNodeWithContentDescription(texto(R.string.action_back)).performClick()
-        esperarTexto(texto(R.string.folder_empty_title))
+        esperarTexto(conteo(1))
         composeRule.onNodeWithContentDescription(texto(R.string.action_back)).performClick()
-        esperar(filaConConteo(cursos, 0))
+        esperar(filaConConteo(cursos, 1))
         esperar(filaConConteo(tareas, 3))
 
         // 4. Al sincronizar de nuevo, CaptuIA respeta la carpeta que eligió el usuario.

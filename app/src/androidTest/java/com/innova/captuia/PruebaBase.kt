@@ -1,6 +1,8 @@
 package com.innova.captuia
 
+import android.content.Context
 import android.media.MediaScannerConnection
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -148,6 +150,16 @@ abstract class PruebaBase {
         if (esperaMillis > 0) Thread.sleep(esperaMillis)
         device.executeShellCommand("mkdir -p $CARPETA_QA")
         device.executeShellCommand("screencap -p $CARPETA_QA/$nombre.png")
+    }
+
+    /** Cierra el teclado en pantalla para que no tape lo que se quiere ver en la imagen. */
+    protected fun ocultarTeclado() {
+        composeRule.runOnUiThread {
+            val activity = composeRule.activity
+            val teclado = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            teclado.hideSoftInputFromWindow(activity.window.decorView.windowToken, 0)
+        }
+        composeRule.waitForIdle()
     }
 
     protected companion object {

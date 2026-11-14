@@ -9,17 +9,23 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.innova.captuia.CaptuIAApplication
 import com.innova.captuia.domain.classify.CaptureClassifier
+import com.innova.captuia.domain.classify.ClassificationReason
+import com.innova.captuia.domain.classify.ClassificationTarget
 import com.innova.captuia.domain.model.Capture
 import com.innova.captuia.domain.model.Folder
 import com.innova.captuia.domain.model.FolderSource
+import com.innova.captuia.domain.model.Subject
 import com.innova.captuia.domain.model.TextStatus
 import com.innova.captuia.domain.repository.CaptureRepository
 import com.innova.captuia.domain.repository.FolderRepository
+import com.innova.captuia.domain.repository.ScheduleRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
 
 sealed interface CaptureDetailUiState {
     data object Loading : CaptureDetailUiState
@@ -34,10 +40,10 @@ sealed interface CaptureDetailUiState {
         /** Todas las carpetas, para poder moverla. */
         val folders: List<Folder>,
         /**
-         * Palabras del texto por las que CaptuIA eligió la carpeta. Null si la
-         * carpeta la eligió el usuario o la captura aún no está clasificada.
+         * Por qué CaptuIA eligió la carpeta. Null si la eligió el usuario, si la
+         * captura aún no está clasificada o si no se puede explicar con certeza.
          */
-        val autoKeywords: List<String>?,
+        val autoReason: ClassificationReason?,
     ) : CaptureDetailUiState
 }
 
@@ -45,12 +51,17 @@ class CaptureDetailViewModel(
     savedStateHandle: SavedStateHandle,
     private val captures: CaptureRepository,
     folders: FolderRepository,
+    schedule: ScheduleRepository,
 ) : ViewModel() {
 
     private val captureId: Long = checkNotNull(savedStateHandle.get<Long>(ARG_CAPTURE_ID))
 
     val state: StateFlow<CaptureDetailUiState> =
-        combine(captures.observeById(captureId), folders.observeSummaries()) { capture, summaries ->
+        combine(
+            captures.observeById(captureId),
+            folders.observeSummaries(),
+            schedule.observeSubjects(),
+        ) { capture, summaries, subjects ->
             if (capture == null) {
                 CaptureDetailUiState.Missing
             } else {
@@ -59,13 +70,7 @@ class CaptureDetailViewModel(
                     capture = capture,
                     folder = allFolders.firstOrNull { it.id == capture.folderId },
                     folders = allFolders,
-                    autoKeywords = if (
-                        capture.folderSource == FolderSource.AUTO && capture.textStatus == TextStatus.READY
-                    ) {
-                        CaptureClassifier.classify(capture.text).matchedKeywords
-                    } else {
-                        null
-                    },
+                    autoReason = autoReason(capture, allFolders, subjects),
                 )
             }
         }.stateIn(
@@ -73,6 +78,21 @@ class CaptureDetailViewModel(
             SharingStarted.WhileSubscribed(5_000),
             CaptureDetailUiState.Loading,
         )
+
+    /**
+     * Vuelve a aplicar las reglas para explicar la carpeta. Solo se devuelve el
+     * motivo si las reglas llegan a la carpeta en la que está la captura.
+     */
+    private fun autoReason(capture: Capture, folders: List<Folder>, subjects: List<Subject>): ClassificationReason? {
+        if (capture.folderSource != FolderSource.AUTO || capture.textStatus != TextStatus.READY) return null
+        val takenAt = Instant.ofEpochMilli(capture.dateAddedMillis).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        val classification = CaptureClassifier.classify(capture.text, takenAt, subjects)
+        val expectedFolderId = when (val target = classification.target) {
+            is ClassificationTarget.System -> folders.firstOrNull { it.systemKey == target.folder }?.id
+            is ClassificationTarget.SubjectFolder -> target.folderId
+        }
+        return classification.reason.takeIf { expectedFolderId == capture.folderId }
+    }
 
     /** Mueve la captura a la carpeta elegida por el usuario. */
     fun moveToFolder(folderId: Long) {
@@ -92,6 +112,7 @@ class CaptureDetailViewModel(
                     savedStateHandle = createSavedStateHandle(),
                     captures = container.captureRepository,
                     folders = container.folderRepository,
+                    schedule = container.scheduleRepository,
                 )
             }
         }

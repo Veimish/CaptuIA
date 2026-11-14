@@ -9,6 +9,7 @@ Proyecto del Equipo INNOVA — Universidad Libre, Facultad de Ingeniería (Ingen
 - **Etapa 1 — Galería:** índice local, capturas agrupadas por día, detalle con zoom y compartir.
 - **Etapa 2 — Texto y búsqueda:** lectura de texto en el dispositivo (ML Kit) en segundo plano y buscador por contenido que no distingue tildes ni mayúsculas.
 - **Etapa 3 — Carpetas:** clasificación automática por reglas (Documentos, Tareas, Cursos, Imágenes), mover capturas a mano y carpetas propias.
+- **Etapa 4 — Horario de clases:** formulario para registrar materias con sus días y horas; cada materia tiene su carpeta y recibe las capturas que la mencionan o las de contenido académico tomadas durante su clase.
 
 ## Tecnología
 

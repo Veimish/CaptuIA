@@ -41,6 +41,9 @@ interface CaptureRepository {
     /** Capturas ya leídas que todavía no tienen carpeta. */
     suspend fun nextUnclassified(limit: Int): List<Capture>
 
+    /** Capturas que CaptuIA clasificó por su cuenta. */
+    suspend fun automaticallyClassified(): List<Capture>
+
     /**
      * Asigna la carpeta decidida por CaptuIA. No tiene efecto si el usuario ya
      * eligió una carpeta para esa captura.

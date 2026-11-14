@@ -22,9 +22,9 @@ class FolderNameValidatorTest {
     }
 
     @Test
-    fun `rechaza nombres de mas de 30 caracteres`() {
-        assertEquals(FolderNameCheck.TooLong, FolderNameValidator.check("a".repeat(31), existing))
-        assertEquals(FolderNameCheck.Valid("a".repeat(30)), FolderNameValidator.check("a".repeat(30), existing))
+    fun `rechaza nombres de mas de 40 caracteres`() {
+        assertEquals(FolderNameCheck.TooLong, FolderNameValidator.check("a".repeat(41), existing))
+        assertEquals(FolderNameCheck.Valid("a".repeat(40)), FolderNameValidator.check("a".repeat(40), existing))
     }
 
     @Test

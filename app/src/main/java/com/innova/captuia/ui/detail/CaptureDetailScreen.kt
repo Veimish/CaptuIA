@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import com.innova.captuia.domain.classify.ClassificationReason
 import com.innova.captuia.domain.model.Folder
 import com.innova.captuia.domain.model.FolderSource
-import com.innova.captuia.domain.model.SystemFolder
 import com.innova.captuia.ui.components.CaptuDialog
 import com.innova.captuia.ui.components.FolderIcon
 import com.innova.captuia.ui.components.FolderVisual
@@ -286,21 +286,22 @@ private const val MAX_KEYWORDS_SHOWN = 3
 @Composable
 private fun FolderLine(ready: CaptureDetailUiState.Ready, onClick: () -> Unit) {
     val folder = ready.folder
-    val keywords = ready.autoKeywords
     val reason = when {
         folder == null -> stringResource(R.string.detail_folder_pending)
         ready.capture.folderSource == FolderSource.MANUAL -> stringResource(R.string.detail_folder_manual)
-        keywords.isNullOrEmpty() -> stringResource(
-            if (folder.systemKey == SystemFolder.IMAGES) {
-                R.string.detail_folder_auto_no_text
-            } else {
-                R.string.detail_folder_auto_no_keywords
-            },
-        )
-        else -> stringResource(
-            R.string.detail_folder_auto_keywords,
-            keywords.take(MAX_KEYWORDS_SHOWN).joinToString(", "),
-        )
+        else -> when (val auto = ready.autoReason) {
+            is ClassificationReason.SubjectMentioned ->
+                stringResource(R.string.detail_folder_auto_subject_mentioned, auto.subjectName)
+            is ClassificationReason.DuringClass ->
+                stringResource(R.string.detail_folder_auto_during_class, auto.subjectName)
+            is ClassificationReason.Keywords -> stringResource(
+                R.string.detail_folder_auto_keywords,
+                auto.words.take(MAX_KEYWORDS_SHOWN).joinToString(", "),
+            )
+            ClassificationReason.NoText -> stringResource(R.string.detail_folder_auto_no_text)
+            ClassificationReason.NoKeywords -> stringResource(R.string.detail_folder_auto_no_keywords)
+            null -> stringResource(R.string.detail_folder_auto)
+        }
     }
     val shape = MaterialTheme.shapes.medium
 

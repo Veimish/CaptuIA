@@ -8,10 +8,12 @@ import com.innova.captuia.data.local.CaptuDatabase
 import com.innova.captuia.data.media.ScreenshotSource
 import com.innova.captuia.data.ocr.MlKitTextReader
 import com.innova.captuia.data.processing.TextIndexer
+import com.innova.captuia.data.schedule.DefaultScheduleRepository
 import com.innova.captuia.data.processing.WorkManagerTextIndexingScheduler
 import com.innova.captuia.domain.model.SystemFolder
 import com.innova.captuia.domain.repository.CaptureRepository
 import com.innova.captuia.domain.repository.FolderRepository
+import com.innova.captuia.domain.repository.ScheduleRepository
 import com.innova.captuia.domain.text.TextIndexingScheduler
 import com.innova.captuia.domain.text.TextReader
 import com.innova.captuia.domain.usecase.ClassifyCapturesUseCase
@@ -64,8 +66,12 @@ class AppContainer(context: Context) {
         )
     }
 
+    val scheduleRepository: ScheduleRepository by lazy {
+        DefaultScheduleRepository(database)
+    }
+
     val classifyCaptures: ClassifyCapturesUseCase by lazy {
-        ClassifyCapturesUseCase(captureRepository, folderRepository)
+        ClassifyCapturesUseCase(captureRepository, folderRepository, scheduleRepository)
     }
 
     val textIndexer: TextIndexer by lazy {

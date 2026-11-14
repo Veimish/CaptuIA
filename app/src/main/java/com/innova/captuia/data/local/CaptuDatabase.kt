@@ -14,8 +14,8 @@ import androidx.room.RoomDatabase
  * versión publicada, cada cambio de esquema debe llevar su migración.
  */
 @Database(
-    entities = [CaptureEntity::class, FolderEntity::class],
-    version = 3,
+    entities = [CaptureEntity::class, FolderEntity::class, ClassSessionEntity::class],
+    version = 4,
     exportSchema = false,
 )
 abstract class CaptuDatabase : RoomDatabase() {
@@ -23,6 +23,8 @@ abstract class CaptuDatabase : RoomDatabase() {
     abstract fun captureDao(): CaptureDao
 
     abstract fun folderDao(): FolderDao
+
+    abstract fun scheduleDao(): ScheduleDao
 
     companion object {
         private const val FILE_NAME = "captuia.db"

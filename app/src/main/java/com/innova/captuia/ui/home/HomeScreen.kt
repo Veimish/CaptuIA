@@ -87,6 +87,7 @@ import com.innova.captuia.ui.theme.White
 const val FOLDER_ALL_TAG = "carpeta-todas"
 const val FOLDER_UNCLASSIFIED_TAG = "carpeta-sin-clasificar"
 fun folderRowTag(name: String) = "carpeta-$name"
+const val SCHEDULE_ROW_TAG = "horario"
 
 /**
  * Inicio: buscador por contenido, carpetas con su número de capturas (como en
@@ -97,6 +98,7 @@ fun HomeScreen(
     onAccessLost: () -> Unit,
     onOpenCapture: (Long) -> Unit,
     onOpenFolder: (CaptureFilter) -> Unit,
+    onOpenSchedule: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val context = LocalContext.current
@@ -154,6 +156,7 @@ fun HomeScreen(
                 onOpenSettings = { context.openAppSettings() },
                 onOpenCapture = onOpenCapture,
                 onOpenFolder = onOpenFolder,
+                onOpenSchedule = onOpenSchedule,
                 onNewFolder = {
                     viewModel.clearNewFolderError()
                     showNewFolder = true
@@ -207,6 +210,7 @@ private fun Library(
     onOpenSettings: () -> Unit,
     onOpenCapture: (Long) -> Unit,
     onOpenFolder: (CaptureFilter) -> Unit,
+    onOpenSchedule: () -> Unit,
     onNewFolder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -239,8 +243,12 @@ private fun Library(
 
         when {
             state.isLoading -> item(key = "loading") { LoadingCard() }
-            state.total == 0 -> item(key = "empty") { EmptyCard() }
-            else -> libraryContent(state, onOpenCapture, onOpenFolder, onNewFolder)
+            state.total == 0 -> {
+                item(key = "empty") { EmptyCard() }
+                // El horario se puede registrar aunque todavía no haya capturas.
+                subjectsSection(state, onOpenFolder, onOpenSchedule)
+            }
+            else -> libraryContent(state, onOpenCapture, onOpenFolder, onOpenSchedule, onNewFolder)
         }
     }
 }
@@ -249,6 +257,7 @@ private fun LazyListScope.libraryContent(
     state: HomeUiState,
     onOpenCapture: (Long) -> Unit,
     onOpenFolder: (CaptureFilter) -> Unit,
+    onOpenSchedule: () -> Unit,
     onNewFolder: () -> Unit,
 ) {
     item(key = "folders-title") { SectionTitle(stringResource(R.string.home_folders_title)) }
@@ -292,6 +301,8 @@ private fun LazyListScope.libraryContent(
         )
     }
 
+    subjectsSection(state, onOpenFolder, onOpenSchedule)
+
     item(key = "recent-title") {
         SectionTitle(
             text = stringResource(R.string.home_recent_title),
@@ -316,6 +327,44 @@ private fun LazyListScope.libraryContent(
     }
 }
 
+/** Carpetas de las materias y la entrada al horario de clases. */
+private fun LazyListScope.subjectsSection(
+    state: HomeUiState,
+    onOpenFolder: (CaptureFilter) -> Unit,
+    onOpenSchedule: () -> Unit,
+) {
+    item(key = "subjects-title") {
+        SectionTitle(
+            text = stringResource(R.string.home_subjects_title),
+            modifier = Modifier.padding(top = Spacing.x2),
+        )
+    }
+    listItems(items = state.subjects, key = { "folder-${it.folder.id}" }) { summary ->
+        FolderRow(
+            name = summary.folder.name,
+            count = summary.captureCount,
+            visual = FolderVisual.of(summary.folder),
+            onClick = { onOpenFolder(CaptureFilter.InFolder(summary.folder.id)) },
+            modifier = Modifier.testTag(folderRowTag(summary.folder.name)),
+        )
+    }
+    item(key = "schedule") {
+        val subjectCount = state.subjects.size
+        LibraryRow(
+            name = stringResource(R.string.schedule_title),
+            detail = when (subjectCount) {
+                0 -> stringResource(R.string.schedule_row_empty)
+                1 -> stringResource(R.string.schedule_row_one)
+                else -> stringResource(R.string.schedule_row_many, Formats.count(subjectCount))
+            },
+            visual = FolderVisual.Schedule,
+            onClick = onOpenSchedule,
+            onClickLabel = stringResource(R.string.action_open_schedule),
+            modifier = Modifier.testTag(SCHEDULE_ROW_TAG),
+        )
+    }
+}
+
 @Composable
 private fun SectionTitle(text: String, modifier: Modifier = Modifier) {
     Text(
@@ -335,12 +384,32 @@ private fun FolderRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    LibraryRow(
+        name = name,
+        detail = captureCountText(count),
+        visual = visual,
+        onClick = onClick,
+        onClickLabel = stringResource(R.string.action_open_folder),
+        modifier = modifier,
+    )
+}
+
+/** Fila con el estilo de las carpetas y un texto de detalle libre. */
+@Composable
+private fun LibraryRow(
+    name: String,
+    detail: String,
+    visual: FolderVisual,
+    onClick: () -> Unit,
+    onClickLabel: String,
+    modifier: Modifier = Modifier,
+) {
     val shape = MaterialTheme.shapes.medium
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .clickable(onClickLabel = stringResource(R.string.action_open_folder), onClick = onClick),
+            .clickable(onClickLabel = onClickLabel, onClick = onClick),
         shape = shape,
         color = White,
         border = BorderStroke(1.dp, Line),
@@ -360,7 +429,7 @@ private fun FolderRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = captureCountText(count),
+                    text = detail,
                     style = MaterialTheme.typography.bodySmall,
                     color = InkSoft,
                 )

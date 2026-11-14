@@ -13,7 +13,8 @@ sealed interface FolderNameCheck {
 
 object FolderNameValidator {
 
-    const val MAX_LENGTH = 30
+    /** Alcanza para nombres de materias largos, como "Programación Orientada a Objetos". */
+    const val MAX_LENGTH = 40
 
     private val spaces = Regex("\\s+")
 
