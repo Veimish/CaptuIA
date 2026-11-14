@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Publica el resultado de la ejecución (registros, capturas y APK) en la rama ci-results.
+# Publica el resultado de la ejecución (registros, capturas y los APK de entrega) en la rama ci-results.
 set -e
 mkdir -p qa
-cp app/build/outputs/apk/debug/app-debug.apk qa/captuia-debug.apk 2>/dev/null || true
+# APK de entrega: el de arm64 para teléfonos y el universal para cualquier dispositivo o emulador.
+cp app/build/outputs/apk/release/app-arm64-v8a-release.apk qa/captuia.apk 2>/dev/null || true
+cp app/build/outputs/apk/release/app-universal-release.apk qa/captuia-universal.apk 2>/dev/null || true
+ls -l app/build/outputs/apk/release/ > qa/apk-entrega.txt 2>/dev/null || true
 mkdir -p qa/resultados-unitarias
 cp app/build/test-results/testDebugUnitTest/*.xml qa/resultados-unitarias/ 2>/dev/null || true
 {

@@ -8,10 +8,11 @@ import androidx.room.RoomDatabase
 /**
  * Base de datos local de CaptuIA. Vive solo en el dispositivo.
  *
- * Mientras la app está en desarrollo (antes de la versión 1.0) un cambio de
- * esquema reconstruye el índice desde la galería en lugar de migrarlo: hasta
- * ahora todo su contenido se obtiene del dispositivo. A partir de la primera
- * versión publicada, cada cambio de esquema debe llevar su migración.
+ * Además del índice de capturas (que se puede reconstruir desde la galería),
+ * guarda datos del usuario que no se pueden recuperar: sus carpetas, las
+ * capturas que movió a mano y su horario. Por eso cualquier cambio de esquema
+ * debe subir la versión y llevar su migración; sin ella la app falla al abrir
+ * en lugar de borrar los datos en silencio.
  */
 @Database(
     entities = [CaptureEntity::class, FolderEntity::class, ClassSessionEntity::class],
@@ -30,8 +31,6 @@ abstract class CaptuDatabase : RoomDatabase() {
         private const val FILE_NAME = "captuia.db"
 
         fun create(context: Context): CaptuDatabase =
-            Room.databaseBuilder(context, CaptuDatabase::class.java, FILE_NAME)
-                .fallbackToDestructiveMigration()
-                .build()
+            Room.databaseBuilder(context, CaptuDatabase::class.java, FILE_NAME).build()
     }
 }

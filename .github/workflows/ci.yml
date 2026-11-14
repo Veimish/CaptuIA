@@ -26,11 +26,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Compilar APK y pruebas unitarias
+      - name: Compilar los APK y ejecutar las pruebas unitarias
         run: |
           mkdir -p qa
           set -o pipefail
-          ./gradlew --no-daemon --stacktrace assembleDebug assembleDebugAndroidTest testDebugUnitTest 2>&1 | tee qa/compilacion.log
+          ./gradlew --no-daemon --stacktrace assembleDebug assembleDebugAndroidTest testDebugUnitTest assembleRelease 2>&1 | tee qa/compilacion.log
 
       - name: Habilitar KVM para el emulador
         run: |
@@ -38,7 +38,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Pruebas de interfaz en emulador (Android 14)
+      - name: Pruebas de interfaz y del APK de entrega en emulador (Android 14)
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34

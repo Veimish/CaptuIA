@@ -13,8 +13,8 @@ android {
         applicationId = "com.innova.captuia"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.5.0"
+        versionCode = 6
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Las pruebas de interfaz se ejecutan como un único recorrido ordenado.
@@ -23,7 +23,25 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 quita el código que no se usa y reduce el tamaño del APK.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // El APK se entrega para instalarlo directamente, no por una tienda, así que se
+            // firma con la clave de depuración. Publicarlo en Google Play exige una clave propia.
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    // El lector de texto incluye una biblioteca nativa de unos 11 MB por arquitectura.
+    // Se genera un APK por arquitectura (el de arm64 sirve para casi todos los teléfonos)
+    // y uno universal que funciona en cualquier dispositivo o emulador.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = true
         }
     }
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Ejecuta las pruebas de interfaz en el emulador y recoge las capturas de cada paso.
+# Ejecuta las pruebas de interfaz en el emulador, recoge las capturas de cada paso
+# y después comprueba el APK de entrega.
 set -x
 mkdir -p qa
 adb shell rm -rf /sdcard/Download/captuia-qa /sdcard/Pictures/Screenshots
@@ -19,4 +20,11 @@ adb pull /sdcard/Download/captuia-qa qa/pantallas || true
 adb logcat -d -t 4000 > qa/logcat.txt || true
 mkdir -p qa/resultados
 find app/build/outputs/androidTest-results -name '*.xml' -exec cp {} qa/resultados/ \; || true
-exit "$status"
+
+# El APK que se entrega (release) se instala y se comprueba aparte.
+python3 ci/smoke_release.py 2>&1 | tee qa/entrega.log
+entrega=${PIPESTATUS[0]}
+adb logcat -d -t 4000 > qa/logcat-entrega.txt || true
+
+if [ "$status" -ne 0 ]; then exit "$status"; fi
+exit "$entrega"
