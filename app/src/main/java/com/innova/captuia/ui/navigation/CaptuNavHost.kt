@@ -7,8 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.innova.captuia.domain.model.CaptureFilter
 import com.innova.captuia.ui.detail.CaptureDetailScreen
 import com.innova.captuia.ui.detail.CaptureDetailViewModel
+import com.innova.captuia.ui.folder.FolderRoute
+import com.innova.captuia.ui.folder.FolderScreen
+import com.innova.captuia.ui.folder.FolderViewModel
 import com.innova.captuia.ui.home.HomeScreen
 import com.innova.captuia.ui.onboarding.WelcomeScreen
 
@@ -16,8 +20,10 @@ import com.innova.captuia.ui.onboarding.WelcomeScreen
 object Routes {
     const val WELCOME = "welcome"
     const val HOME = "home"
+    const val FOLDER = "folder/{${FolderViewModel.ARG_FILTER}}"
     const val CAPTURE = "capture/{${CaptureDetailViewModel.ARG_CAPTURE_ID}}"
 
+    fun folder(filter: CaptureFilter) = "folder/${FolderRoute.encode(filter)}"
     fun capture(id: Long) = "capture/$id"
 }
 
@@ -37,12 +43,19 @@ fun CaptuNavHost(startDestination: String) {
         composable(Routes.HOME) {
             HomeScreen(
                 onAccessLost = { navController.replace(from = Routes.HOME, to = Routes.WELCOME) },
-                onOpenCapture = { id ->
-                    // Evita abrir dos veces el detalle con un doble toque rápido.
-                    if (navController.currentDestination?.route == Routes.HOME) {
-                        navController.navigate(Routes.capture(id))
-                    }
-                },
+                onOpenCapture = { id -> navController.navigateFrom(Routes.HOME, Routes.capture(id)) },
+                onOpenFolder = { filter -> navController.navigateFrom(Routes.HOME, Routes.folder(filter)) },
+            )
+        }
+        composable(
+            route = Routes.FOLDER,
+            arguments = listOf(
+                navArgument(FolderViewModel.ARG_FILTER) { type = NavType.StringType },
+            ),
+        ) {
+            FolderScreen(
+                onBack = { navController.backFrom(Routes.FOLDER) },
+                onOpenCapture = { id -> navController.navigateFrom(Routes.FOLDER, Routes.capture(id)) },
             )
         }
         composable(
@@ -52,11 +65,7 @@ fun CaptuNavHost(startDestination: String) {
             ),
         ) {
             CaptureDetailScreen(
-                onBack = {
-                    if (navController.currentDestination?.route == Routes.CAPTURE) {
-                        navController.popBackStack()
-                    }
-                },
+                onBack = { navController.backFrom(Routes.CAPTURE) },
             )
         }
     }
@@ -73,4 +82,14 @@ private fun NavHostController.replace(from: String, to: String) {
         popUpTo(from) { inclusive = true }
         launchSingleTop = true
     }
+}
+
+/** Abre [to] solo si [from] sigue siendo la pantalla visible (evita abrir dos veces con un doble toque). */
+private fun NavHostController.navigateFrom(from: String, to: String) {
+    if (currentDestination?.route == from) navigate(to)
+}
+
+/** Vuelve atrás solo si [from] sigue siendo la pantalla visible. */
+private fun NavHostController.backFrom(from: String) {
+    if (currentDestination?.route == from) popBackStack()
 }

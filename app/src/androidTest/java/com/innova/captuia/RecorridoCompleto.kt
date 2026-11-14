@@ -12,5 +12,6 @@ import org.junit.runners.Suite
     Etapa0PermisosTest::class,
     Etapa1GaleriaTest::class,
     Etapa2TextoYBusquedaTest::class,
+    Etapa3CarpetasTest::class,
 )
 class RecorridoCompleto

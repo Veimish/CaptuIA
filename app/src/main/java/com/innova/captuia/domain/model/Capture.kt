@@ -27,6 +27,9 @@ data class Capture(
     val textStatus: TextStatus = TextStatus.PENDING,
     /** Texto reconocido en la imagen; null mientras no se haya leído. */
     val text: String? = null,
+    /** Carpeta a la que pertenece; null si aún no se ha clasificado. */
+    val folderId: Long? = null,
+    val folderSource: FolderSource = FolderSource.NONE,
 )
 
 /** Avance de la lectura de texto sobre todas las capturas. */
@@ -36,4 +39,11 @@ data class TextProgress(
 ) {
     val done: Int get() = total - pending
     val isWorking: Boolean get() = pending > 0
+}
+
+/** Qué capturas mostrar en una galería. */
+sealed interface CaptureFilter {
+    data object All : CaptureFilter
+    data object Unclassified : CaptureFilter
+    data class InFolder(val folderId: Long) : CaptureFilter
 }

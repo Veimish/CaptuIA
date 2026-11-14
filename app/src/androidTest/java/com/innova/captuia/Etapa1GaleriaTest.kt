@@ -6,12 +6,14 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import com.innova.captuia.ui.home.FOLDER_ALL_TAG
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -26,10 +28,12 @@ class Etapa1GaleriaTest : PruebaBase() {
 
     @Test
     fun galeriaDetalleCompartirYBorrado() = conCapturaDeFallo("99-fallo-etapa1") {
-        // 1. La galería muestra las dos capturas del dispositivo, agrupadas en "Hoy".
+        // 1. "Todas las capturas" muestra las dos capturas del dispositivo, agrupadas en "Hoy".
         esperarTexto(texto(R.string.home_title))
-        esperarTexto(texto(R.string.home_count_many, "2"))
-        composeRule.onNodeWithText(texto(R.string.day_today)).assertIsDisplayed()
+        esperar(filaConConteo(FOLDER_ALL_TAG, 2))
+        composeRule.onNodeWithTag(FOLDER_ALL_TAG).performClick()
+        esperarTexto(texto(R.string.day_today))
+        composeRule.onNodeWithText(conteo(2)).assertIsDisplayed()
         val miniaturas = composeRule.onAllNodes(esMiniatura).fetchSemanticsNodes().size
         check(miniaturas == 2) { "Se esperaban 2 miniaturas y hay $miniaturas." }
         guardarPantalla("05-galeria", esperaMillis = 2000)
@@ -59,15 +63,19 @@ class Etapa1GaleriaTest : PruebaBase() {
             "El selector para compartir no se cerró."
         }
 
-        // 5. El botón de volver regresa a la galería.
+        // 5. El botón de volver regresa a la galería de la carpeta.
         composeRule.onNodeWithContentDescription(texto(R.string.action_back)).performClick()
-        esperarTexto(texto(R.string.home_title))
+        esperarTexto(texto(R.string.day_today))
 
         // 6. Si el usuario borra una captura del teléfono, desaparece de CaptuIA.
         borrarCapturaEnDispositivo(CAPTURA_1)
-        volverALaAppHastaVer(texto(R.string.home_count_one))
+        volverALaAppHastaVer(conteo(1))
         val restantes = composeRule.onAllNodes(esMiniatura).fetchSemanticsNodes().size
         check(restantes == 1) { "Tras borrar una captura deberían quedar 1 miniatura y hay $restantes." }
         guardarPantalla("09-galeria-tras-borrar", esperaMillis = 1500)
+
+        // 7. Volver lleva a Inicio, que refleja el mismo total.
+        composeRule.onNodeWithContentDescription(texto(R.string.action_back)).performClick()
+        esperar(filaConConteo(FOLDER_ALL_TAG, 1))
     }
 }

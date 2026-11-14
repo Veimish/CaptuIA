@@ -1,4 +1,4 @@
-package com.innova.captuia.ui.home
+package com.innova.captuia.ui.gallery
 
 import com.innova.captuia.domain.model.Capture
 import org.junit.Assert.assertEquals

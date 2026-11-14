@@ -1,5 +1,6 @@
 package com.innova.captuia.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -107,13 +109,17 @@ fun BrandHeader(
 }
 
 /**
- * Cabecera compacta para pantallas secundarias: botón de volver y título.
+ * Cabecera compacta para pantallas secundarias: botón de volver, título y,
+ * si [actionIconRes] no es null, una acción a la derecha.
  */
 @Composable
 fun CompactHeader(
     title: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    @DrawableRes actionIconRes: Int? = null,
+    actionDescription: String? = null,
+    onAction: () -> Unit = {},
 ) {
     Row(
         modifier = modifier
@@ -135,6 +141,18 @@ fun CompactHeader(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             color = White,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
+        if (actionIconRes != null) {
+            IconButton(onClick = onAction) {
+                Icon(
+                    painter = painterResource(actionIconRes),
+                    contentDescription = actionDescription,
+                    tint = White,
+                )
+            }
+        }
     }
 }

@@ -9,17 +9,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.innova.captuia.CaptuIAApplication
+import com.innova.captuia.domain.folder.FolderNameCheck
 import com.innova.captuia.domain.model.Capture
+import com.innova.captuia.domain.model.CaptureFilter
+import com.innova.captuia.domain.model.FolderSummary
 import com.innova.captuia.domain.model.TextProgress
 import com.innova.captuia.domain.repository.CaptureRepository
+import com.innova.captuia.domain.repository.FolderRepository
 import com.innova.captuia.domain.search.Snippet
 import com.innova.captuia.domain.search.SnippetBuilder
 import com.innova.captuia.domain.search.TextNormalizer
-import com.innova.captuia.domain.usecase.SyncCapturesUseCase
-import kotlinx.coroutines.CancellationException
+import com.innova.captuia.domain.usecase.SyncCoordinator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,8 +34,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.ZoneId
 
 /** Una captura encontrada por el buscador, con el fragmento de texto que coincide. */
 data class SearchResult(
@@ -51,7 +51,10 @@ data class HomeUiState(
     /** True solo mientras se hace la primera lectura de la galería. */
     val isLoading: Boolean = true,
     val total: Int = 0,
-    val sections: List<DaySection> = emptyList(),
+    val folders: List<FolderSummary> = emptyList(),
+    /** Capturas que aún no tienen carpeta (sin leer o que no se pudieron leer). */
+    val unclassified: Int = 0,
+    val recent: List<Capture> = emptyList(),
     val hasError: Boolean = false,
     val textProgress: TextProgress = TextProgress(),
     /** Null cuando no hay búsqueda activa o aún no termina. */
@@ -59,17 +62,17 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
-    private val repository: CaptureRepository,
-    private val syncCaptures: SyncCapturesUseCase,
+    private val captures: CaptureRepository,
+    private val folders: FolderRepository,
+    private val syncCoordinator: SyncCoordinator,
 ) : ViewModel() {
-
-    private data class SyncStatus(val finishedOnce: Boolean = false, val failed: Boolean = false)
-
-    private val syncStatus = MutableStateFlow(SyncStatus())
-    private var syncJob: Job? = null
 
     /** Texto del buscador. Es estado de Compose para que escribir sea inmediato. */
     var query by mutableStateOf("")
+        private set
+
+    /** Motivo por el que no se pudo crear la carpeta; null si no hay error que mostrar. */
+    var newFolderError by mutableStateOf<FolderNameCheck?>(null)
         private set
 
     private val queryFlow = MutableStateFlow("")
@@ -85,10 +88,10 @@ class HomeViewModel(
                 if (terms.isEmpty()) {
                     flowOf(null)
                 } else {
-                    repository.search(text).map { captures ->
+                    captures.search(text).map { found ->
                         SearchOutcome(
                             query = text,
-                            results = captures.map { capture ->
+                            results = found.map { capture ->
                                 SearchResult(
                                     capture = capture,
                                     snippet = SnippetBuilder.build(capture.text.orEmpty(), terms),
@@ -99,17 +102,24 @@ class HomeViewModel(
                 }
             }
 
+    private val library: Flow<Pair<List<Capture>, List<FolderSummary>>> =
+        combine(captures.observe(CaptureFilter.All), folders.observeSummaries()) { all, summaries ->
+            all to summaries
+        }
+
     val state: StateFlow<HomeUiState> =
         combine(
-            repository.observeAll(),
-            syncStatus,
-            repository.observeTextProgress(),
+            library,
+            syncCoordinator.status,
+            captures.observeTextProgress(),
             searchOutcome,
-        ) { captures, sync, progress, search ->
+        ) { (all, summaries), sync, progress, search ->
             HomeUiState(
-                isLoading = !sync.finishedOnce && captures.isEmpty(),
-                total = captures.size,
-                sections = groupByDay(captures, LocalDate.now(), ZoneId.systemDefault()),
+                isLoading = !sync.finishedOnce && all.isEmpty(),
+                total = all.size,
+                folders = summaries,
+                unclassified = all.count { it.folderId == null },
+                recent = all.take(RECENT_COUNT),
                 hasError = sync.failed,
                 textProgress = progress,
                 search = search,
@@ -121,32 +131,40 @@ class HomeViewModel(
         queryFlow.value = text
     }
 
-    /** Actualiza el índice con las capturas del dispositivo y programa la lectura de texto. */
-    fun syncWithDevice() {
-        syncJob?.cancel()
-        syncJob = viewModelScope.launch {
-            try {
-                syncCaptures()
-                syncStatus.value = SyncStatus(finishedOnce = true, failed = false)
-            } catch (cancellation: CancellationException) {
-                throw cancellation
-            } catch (error: Exception) {
-                syncStatus.value = SyncStatus(finishedOnce = true, failed = true)
+    /** Actualiza el índice con las capturas del dispositivo. */
+    fun syncWithDevice() = syncCoordinator.requestSync()
+
+    /** Intenta crear una carpeta; [onCreated] se llama solo si se creó. */
+    fun createFolder(name: String, onCreated: () -> Unit) {
+        viewModelScope.launch {
+            val check = folders.create(name)
+            if (check is FolderNameCheck.Valid) {
+                newFolderError = null
+                onCreated()
+            } else {
+                newFolderError = check
             }
         }
     }
 
+    fun clearNewFolderError() {
+        newFolderError = null
+    }
+
     companion object {
         private const val SEARCH_DEBOUNCE_MILLIS = 250L
+        private const val RECENT_COUNT = 6
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = checkNotNull(
-                    this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY],
-                ) as CaptuIAApplication
+                val container = (
+                    checkNotNull(this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+                        as CaptuIAApplication
+                    ).container
                 HomeViewModel(
-                    repository = application.container.captureRepository,
-                    syncCaptures = application.container.syncCaptures,
+                    captures = container.captureRepository,
+                    folders = container.folderRepository,
+                    syncCoordinator = container.syncCoordinator,
                 )
             }
         }

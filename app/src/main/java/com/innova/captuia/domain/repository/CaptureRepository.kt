@@ -1,14 +1,15 @@
 package com.innova.captuia.domain.repository
 
 import com.innova.captuia.domain.model.Capture
+import com.innova.captuia.domain.model.CaptureFilter
 import com.innova.captuia.domain.model.TextProgress
 import kotlinx.coroutines.flow.Flow
 
 /** Acceso al índice de capturas de CaptuIA. */
 interface CaptureRepository {
 
-    /** Todas las capturas indexadas, de la más reciente a la más antigua. */
-    fun observeAll(): Flow<List<Capture>>
+    /** Capturas de [filter], de la más reciente a la más antigua. */
+    fun observe(filter: CaptureFilter): Flow<List<Capture>>
 
     /** Una captura por su identificador; emite null si deja de existir. */
     fun observeById(id: Long): Flow<Capture?>
@@ -36,4 +37,16 @@ interface CaptureRepository {
 
     /** Marca que la captura no se pudo leer. */
     suspend fun markTextFailed(id: Long)
+
+    /** Capturas ya leídas que todavía no tienen carpeta. */
+    suspend fun nextUnclassified(limit: Int): List<Capture>
+
+    /**
+     * Asigna la carpeta decidida por CaptuIA. No tiene efecto si el usuario ya
+     * eligió una carpeta para esa captura.
+     */
+    suspend fun assignFolderAutomatically(captureId: Long, folderId: Long)
+
+    /** Mueve la captura a la carpeta que eligió el usuario. */
+    suspend fun moveToFolder(captureId: Long, folderId: Long)
 }

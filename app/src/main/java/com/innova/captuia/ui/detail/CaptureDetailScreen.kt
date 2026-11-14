@@ -1,6 +1,17 @@
 package com.innova.captuia.ui.detail
 
 import android.content.Context
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import com.innova.captuia.domain.model.Folder
+import com.innova.captuia.domain.model.FolderSource
+import com.innova.captuia.domain.model.SystemFolder
+import com.innova.captuia.ui.components.CaptuDialog
+import com.innova.captuia.ui.components.FolderIcon
+import com.innova.captuia.ui.components.FolderVisual
+import com.innova.captuia.ui.theme.TealLight
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
@@ -81,11 +92,14 @@ fun CaptureDetailScreen(
     viewModel: CaptureDetailViewModel = viewModel(factory = CaptureDetailViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showFolderPicker by rememberSaveable { mutableStateOf(false) }
 
     // Si la captura se borró de la galería mientras estaba abierta, se vuelve atrás.
     if (state is CaptureDetailUiState.Missing) {
         LaunchedEffect(Unit) { onBack() }
     }
+
+    val ready = state as? CaptureDetailUiState.Ready
 
     Column(
         modifier = Modifier
@@ -97,16 +111,27 @@ fun CaptureDetailScreen(
             onBack = onBack,
         )
 
-        val capture = (state as? CaptureDetailUiState.Ready)?.capture
-        if (capture != null) {
+        if (ready != null) {
             ZoomableImage(
-                capture = capture,
+                capture = ready.capture,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
             )
-            InfoPanel(capture = capture)
+            InfoPanel(ready = ready, onChangeFolder = { showFolderPicker = true })
         }
+    }
+
+    if (showFolderPicker && ready != null) {
+        FolderPickerDialog(
+            folders = ready.folders,
+            currentFolderId = ready.capture.folderId,
+            onPick = { folderId ->
+                viewModel.moveToFolder(folderId)
+                showFolderPicker = false
+            },
+            onDismiss = { showFolderPicker = false },
+        )
     }
 }
 
@@ -196,7 +221,8 @@ private fun ZoomableImage(capture: Capture, modifier: Modifier = Modifier) {
 private const val FALLBACK_RATIO = 9f / 19.5f
 
 @Composable
-private fun InfoPanel(capture: Capture) {
+private fun InfoPanel(ready: CaptureDetailUiState.Ready, onChangeFolder: () -> Unit) {
+    val capture = ready.capture
     val context = LocalContext.current
     val chooserTitle = stringResource(R.string.share_chooser_title)
     val text = capture.text.orEmpty().trim()
@@ -228,6 +254,8 @@ private fun InfoPanel(capture: Capture) {
                 color = InkSoft,
             )
 
+            FolderLine(ready = ready, onClick = onChangeFolder)
+
             RecognizedText(status = capture.textStatus, text = text)
 
             Row(
@@ -246,6 +274,136 @@ private fun InfoPanel(capture: Capture) {
                 )
             }
         }
+    }
+}
+
+/** Identificador de la fila de carpeta en el detalle, para las pruebas de interfaz. */
+const val DETAIL_FOLDER_TAG = "detalle-carpeta"
+
+private const val MAX_KEYWORDS_SHOWN = 3
+
+/** Carpeta de la captura y por qué está ahí. Al tocarla se puede mover a otra. */
+@Composable
+private fun FolderLine(ready: CaptureDetailUiState.Ready, onClick: () -> Unit) {
+    val folder = ready.folder
+    val keywords = ready.autoKeywords
+    val reason = when {
+        folder == null -> stringResource(R.string.detail_folder_pending)
+        ready.capture.folderSource == FolderSource.MANUAL -> stringResource(R.string.detail_folder_manual)
+        keywords.isNullOrEmpty() -> stringResource(
+            if (folder.systemKey == SystemFolder.IMAGES) {
+                R.string.detail_folder_auto_no_text
+            } else {
+                R.string.detail_folder_auto_no_keywords
+            },
+        )
+        else -> stringResource(
+            R.string.detail_folder_auto_keywords,
+            keywords.take(MAX_KEYWORDS_SHOWN).joinToString(", "),
+        )
+    }
+    val shape = MaterialTheme.shapes.medium
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Paper)
+            .border(BorderStroke(1.dp, Line), shape)
+            .clickable(onClickLabel = stringResource(R.string.action_change_folder), onClick = onClick)
+            .testTag(DETAIL_FOLDER_TAG)
+            .padding(horizontal = 12.dp, vertical = Spacing.x1),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        FolderIcon(
+            visual = if (folder == null) FolderVisual.Unclassified else FolderVisual.of(folder),
+            size = 32.dp,
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp),
+        ) {
+            Text(
+                text = folder?.name ?: stringResource(R.string.folder_unclassified),
+                style = MaterialTheme.typography.titleSmall,
+                color = Ink,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = reason,
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSoft,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Text(
+            text = stringResource(R.string.action_change_folder),
+            style = MaterialTheme.typography.labelMedium,
+            color = TealDeep,
+        )
+    }
+}
+
+/** Lista de carpetas para mover la captura; la actual aparece marcada. */
+@Composable
+private fun FolderPickerDialog(
+    folders: List<Folder>,
+    currentFolderId: Long?,
+    onPick: (Long) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    CaptuDialog(
+        title = stringResource(R.string.detail_move_title),
+        onDismiss = onDismiss,
+    ) {
+        Column(
+            modifier = Modifier
+                .heightIn(max = 320.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(Spacing.half),
+        ) {
+            folders.forEach { folder ->
+                val isCurrent = folder.id == currentFolderId
+                val shape = MaterialTheme.shapes.medium
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape)
+                        .background(if (isCurrent) TealLight.copy(alpha = 0.5f) else White)
+                        .clickable { onPick(folder.id) }
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    FolderIcon(visual = FolderVisual.of(folder), size = 32.dp)
+                    Text(
+                        text = folder.name,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 12.dp),
+                    )
+                    if (isCurrent) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_check),
+                            contentDescription = stringResource(R.string.detail_current_folder),
+                            tint = Ink,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+            }
+        }
+        SecondaryButton(
+            text = stringResource(R.string.action_cancel),
+            onClick = onDismiss,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

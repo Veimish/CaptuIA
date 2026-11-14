@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.innova.captuia.ui.components.SEARCH_FIELD_TAG
+import com.innova.captuia.ui.home.FOLDER_ALL_TAG
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,7 +35,7 @@ class Etapa2TextoYBusquedaTest : PruebaBase() {
         copiarMuestraComoCaptura("tarea.png", "Screenshot_20261113-110100.png")
         copiarMuestraComoCaptura("chat.png", "Screenshot_20261113-110200.png")
         copiarMuestraComoCaptura("foto.png", "Screenshot_20261113-110300.png")
-        volverALaAppHastaVer(texto(R.string.home_count_many, "5"))
+        volverALaAppHastaVerTotal(5)
 
         // 2. La app lee el texto de todas en segundo plano, sin intervención.
         Thread.sleep(1500)
@@ -67,7 +68,7 @@ class Etapa2TextoYBusquedaTest : PruebaBase() {
 
         // 7. El botón de borrar devuelve la galería completa.
         composeRule.onNodeWithContentDescription(texto(R.string.action_clear_search)).performClick()
-        esperarTexto(texto(R.string.home_count_many, "5"))
+        esperar(filaConConteo(FOLDER_ALL_TAG, 5))
 
         // 8. Desde un resultado se abre el detalle con el texto leído, y se puede copiar.
         buscar("horario")
@@ -92,11 +93,15 @@ class Etapa2TextoYBusquedaTest : PruebaBase() {
         // 9. Una captura sin texto (la foto, que es la más reciente) lo indica.
         esperarTexto(texto(R.string.search_count_one))
         composeRule.onNodeWithContentDescription(texto(R.string.action_clear_search)).performClick()
-        esperarTexto(texto(R.string.home_count_many, "5"))
+        esperar(filaConConteo(FOLDER_ALL_TAG, 5))
+        composeRule.onNodeWithTag(FOLDER_ALL_TAG).performClick()
+        esperarTexto(texto(R.string.day_today))
         composeRule.onAllNodes(esMiniatura).onFirst().performClick()
         esperarTexto(texto(R.string.detail_text_none))
         composeRule.onNodeWithText("Screenshot_20261113-110300.png").assertIsDisplayed()
         guardarPantalla("16-detalle-sin-texto", esperaMillis = 1500)
+        composeRule.onNodeWithContentDescription(texto(R.string.action_back)).performClick()
+        esperarTexto(texto(R.string.day_today))
         composeRule.onNodeWithContentDescription(texto(R.string.action_back)).performClick()
         esperarTexto(texto(R.string.home_title))
     }

@@ -1,12 +1,16 @@
 package com.innova.captuia
 
 import android.media.MediaScannerConnection
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.lifecycle.Lifecycle
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import com.innova.captuia.ui.home.FOLDER_ALL_TAG
 import org.junit.Before
 import org.junit.Rule
 import java.util.regex.Pattern
@@ -55,6 +59,34 @@ abstract class PruebaBase {
         composeRule.waitUntil(timeoutMillis = timeoutMillis) {
             composeRule.onAllNodesWithText(texto).fetchSemanticsNodes().isNotEmpty()
         }
+    }
+
+    /** Texto "N capturas" tal como lo muestra la app. */
+    protected fun conteo(cantidad: Int): String =
+        if (cantidad == 1) texto(R.string.count_one) else texto(R.string.count_many, cantidad.toString())
+
+    /** La fila con la etiqueta [tag] (una carpeta de Inicio) muestra [cantidad] capturas. */
+    protected fun filaConConteo(tag: String, cantidad: Int): SemanticsMatcher =
+        hasTestTag(tag) and hasText(conteo(cantidad))
+
+    protected fun existe(matcher: SemanticsMatcher): Boolean =
+        composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
+
+    protected fun esperar(matcher: SemanticsMatcher, timeoutMillis: Long = 15_000) {
+        composeRule.waitUntil(timeoutMillis = timeoutMillis) { existe(matcher) }
+    }
+
+    /** Simula salir de la app y volver hasta que "Todas las capturas" muestre [cantidad]. */
+    protected fun volverALaAppHastaVerTotal(cantidad: Int, intentos: Int = 15) {
+        val fila = filaConConteo(FOLDER_ALL_TAG, cantidad)
+        repeat(intentos) {
+            composeRule.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+            composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+            Thread.sleep(1000)
+            composeRule.waitForIdle()
+            if (existe(fila)) return
+        }
+        error("Inicio no mostró un total de $cantidad capturas después de volver a primer plano.")
     }
 
     /**

@@ -49,8 +49,7 @@ class Etapa0PermisosTest : PruebaBase() {
         // 4. Se toman dos capturas reales en el dispositivo; al volver a la app las detecta.
         tomarCapturaEnDispositivo(CAPTURA_1)
         tomarCapturaEnDispositivo(CAPTURA_2)
-        volverALaAppHastaVer(texto(R.string.home_count_many, "2"))
-        composeRule.onNodeWithText(texto(R.string.day_today)).assertIsDisplayed()
+        volverALaAppHastaVerTotal(2)
     }
 
     private fun esperarDialogoDePermisos() {

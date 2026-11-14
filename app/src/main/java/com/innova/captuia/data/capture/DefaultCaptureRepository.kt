@@ -6,6 +6,8 @@ import com.innova.captuia.data.local.CaptuDatabase
 import com.innova.captuia.data.local.CaptureEntity
 import com.innova.captuia.data.media.ScreenshotSource
 import com.innova.captuia.domain.model.Capture
+import com.innova.captuia.domain.model.CaptureFilter
+import com.innova.captuia.domain.model.FolderSource
 import com.innova.captuia.domain.model.DeviceScreenshot
 import com.innova.captuia.domain.model.TextProgress
 import com.innova.captuia.domain.model.TextStatus
@@ -24,8 +26,14 @@ class DefaultCaptureRepository(
 
     private val dao = database.captureDao()
 
-    override fun observeAll(): Flow<List<Capture>> =
-        dao.observeAll().map { rows -> rows.map { it.toDomain() } }
+    override fun observe(filter: CaptureFilter): Flow<List<Capture>> {
+        val rows = when (filter) {
+            CaptureFilter.All -> dao.observeAll()
+            CaptureFilter.Unclassified -> dao.observeWithoutFolder()
+            is CaptureFilter.InFolder -> dao.observeByFolder(filter.folderId)
+        }
+        return rows.map { list -> list.map { it.toDomain() } }
+    }
 
     override fun observeById(id: Long): Flow<Capture?> =
         dao.observeById(id).map { it?.toDomain() }
@@ -86,6 +94,26 @@ class DefaultCaptureRepository(
         dao.updateText(id = id, status = TextStatus.FAILED.name, text = null, searchText = null)
     }
 
+    override suspend fun nextUnclassified(limit: Int): List<Capture> =
+        dao.unclassified(
+            readyStatus = TextStatus.READY.name,
+            manualSource = FolderSource.MANUAL.name,
+            limit = limit,
+        ).map { it.toDomain() }
+
+    override suspend fun assignFolderAutomatically(captureId: Long, folderId: Long) {
+        dao.assignAutomatically(
+            id = captureId,
+            folderId = folderId,
+            autoSource = FolderSource.AUTO.name,
+            manualSource = FolderSource.MANUAL.name,
+        )
+    }
+
+    override suspend fun moveToFolder(captureId: Long, folderId: Long) {
+        dao.assignManually(id = captureId, folderId = folderId, manualSource = FolderSource.MANUAL.name)
+    }
+
     /** Evita que %, _ y \ escritos por el usuario actúen como comodines de LIKE. */
     private fun escapeLike(term: String): String =
         term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
@@ -107,6 +135,8 @@ private fun DeviceScreenshot.toEntity() = CaptureEntity(
     textStatus = TextStatus.PENDING.name,
     recognizedText = null,
     searchText = null,
+    folderId = null,
+    folderSource = FolderSource.NONE.name,
 )
 
 private fun CaptureEntity.toDomain() = Capture(
@@ -119,4 +149,6 @@ private fun CaptureEntity.toDomain() = Capture(
     sizeBytes = sizeBytes,
     textStatus = TextStatus.entries.firstOrNull { it.name == textStatus } ?: TextStatus.PENDING,
     text = recognizedText,
+    folderId = folderId,
+    folderSource = FolderSource.entries.firstOrNull { it.name == folderSource } ?: FolderSource.NONE,
 )

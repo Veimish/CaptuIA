@@ -27,9 +27,10 @@
     <!-- Inicio -->
     <string name="home_title">Tus capturas</string>
     <string name="home_loading">Buscando capturas en tu dispositivo…</string>
-    <string name="home_count_one">1 captura</string>
-    <string name="home_count_many">%1$s capturas</string>
-    <string name="home_count_caption">Detectadas en tu dispositivo, de la más reciente a la más antigua.</string>
+    <string name="count_one">1 captura</string>
+    <string name="count_many">%1$s capturas</string>
+    <string name="home_folders_title">Carpetas</string>
+    <string name="home_recent_title">Recientes</string>
     <string name="day_today">Hoy</string>
     <string name="day_yesterday">Ayer</string>
     <string name="capture_thumbnail_description">Captura del %1$s</string>
@@ -63,4 +64,42 @@
     <string name="action_show_less_text">Ver menos</string>
     <string name="action_share">Compartir</string>
     <string name="share_chooser_title">Compartir captura</string>
+
+    <!-- Carpetas -->
+    <string name="folder_documents">Documentos</string>
+    <string name="folder_tasks">Tareas</string>
+    <string name="folder_courses">Cursos</string>
+    <string name="folder_images">Imágenes</string>
+    <string name="folder_all">Todas las capturas</string>
+    <string name="folder_unclassified">Sin clasificar</string>
+    <string name="folder_unclassified_hint">CaptuIA todavía no las ha leído, o no pudo leerlas. Puedes moverlas tú a una carpeta.</string>
+    <string name="folder_unclassified_empty_text">Todas tus capturas ya están en una carpeta.</string>
+    <string name="folder_empty_title">Aún no hay capturas aquí</string>
+    <string name="folder_empty_text">Cuando CaptuIA clasifique una captura en esta carpeta, o la muevas tú, aparecerá aquí.</string>
+    <string name="action_open_folder">Abrir carpeta</string>
+    <string name="action_new_folder">Nueva carpeta</string>
+    <string name="folder_new_title">Nueva carpeta</string>
+    <string name="folder_rename_title">Cambiar nombre</string>
+    <string name="folder_name_label">Nombre de la carpeta</string>
+    <string name="folder_error_empty">Escribe un nombre para la carpeta.</string>
+    <string name="folder_error_too_long">El nombre puede tener máximo 30 caracteres.</string>
+    <string name="folder_error_duplicate">Ya tienes una carpeta con ese nombre.</string>
+    <string name="action_create">Crear carpeta</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_folder_options">Opciones de la carpeta</string>
+    <string name="action_rename_folder">Cambiar nombre</string>
+    <string name="action_delete_folder">Eliminar carpeta</string>
+    <string name="folder_delete_title">¿Eliminar «%1$s»?</string>
+    <string name="folder_delete_message">Tus capturas no se borran: CaptuIA las vuelve a clasificar en sus carpetas.</string>
+
+    <!-- Carpeta en el detalle -->
+    <string name="action_change_folder">Cambiar</string>
+    <string name="detail_move_title">Mover a carpeta</string>
+    <string name="detail_current_folder">Carpeta actual</string>
+    <string name="detail_folder_pending">CaptuIA aún no la ha clasificado.</string>
+    <string name="detail_folder_manual">La elegiste tú.</string>
+    <string name="detail_folder_auto_keywords">Clasificada por CaptuIA por: %1$s.</string>
+    <string name="detail_folder_auto_no_text">Clasificada por CaptuIA: casi no tiene texto.</string>
+    <string name="detail_folder_auto_no_keywords">Clasificada por CaptuIA: tiene texto, sin palabras de tareas ni cursos.</string>
 </resources>
