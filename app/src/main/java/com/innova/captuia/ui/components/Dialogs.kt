@@ -151,7 +151,6 @@ fun TextInputDialog(
         mutableStateOf(TextFieldValue(initialValue, selection = TextRange(initialValue.length)))
     }
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
     CaptuDialog(title = title, onDismiss = onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.x1)) {
@@ -196,6 +195,10 @@ fun TextInputDialog(
                     }
                 },
             )
+            // El foco se pide aquí, dentro del diálogo y después del campo: el contenido de
+            // un diálogo se compone aparte, y pedirlo antes de que el campo exista falla.
+            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
             if (errorMessage != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
