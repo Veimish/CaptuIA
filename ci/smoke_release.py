@@ -82,13 +82,17 @@ def fail(message):
 
 
 def wait_for(description, predicate, timeout=60):
-    """Espera hasta que haya un nodo que cumpla la condición y devuelve el primero."""
+    """Espera hasta que haya un nodo que cumpla la condición y devuelve el más interno.
+
+    El árbol se recorre de fuera hacia dentro, así que el último que cumple es el más
+    específico: la fila o el botón, y no un contenedor que casualmente tenga pocos textos.
+    """
     deadline = time.time() + timeout
     while time.time() < deadline:
         found = find(dump(), predicate)
         if found:
             print(f"ENTREGA: ok - {description}")
-            return found[0]
+            return found[-1]
         time.sleep(2)
     fail(f"no apareció: {description}")
 
@@ -157,7 +161,10 @@ def main():
     tap_when_visible("botón Volver", lambda node: node.get("content-desc") == "Volver")
     wait_for("Inicio con la materia registrada", has("Horario de clases", "1 materia registrada"))
     tap_when_visible("carpeta Imágenes", has("genes", "1 captura"))
-    tap_when_visible("miniatura de la captura", has("Captura del"))
+    tap_when_visible(
+        "miniatura de la captura",
+        lambda node: node.get("content-desc", "").startswith("Captura del"),
+    )
     wait_for("detalle de la captura", has("Compartir"))
     screenshot("41-entrega-detalle")
 
