@@ -3,8 +3,9 @@
 Aplicación Android que organiza las capturas de pantalla por su contenido.
 Proyecto del Equipo INNOVA — Universidad Libre, Facultad de Ingeniería (Ingeniería Aplicada 2026-2).
 
-Todo el procesamiento ocurre en el teléfono: las capturas no se envían a ningún servidor
-y la app no pide permiso de internet.
+Todo el procesamiento ocurre en el teléfono: las capturas no se envían a ningún servidor.
+La app no tiene permiso de internet; el que traía la biblioteca de lectura de texto para
+enviar estadísticas de uso se retira en `AndroidManifest.xml`.
 
 ## Qué hace
 

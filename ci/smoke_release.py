@@ -28,13 +28,24 @@ def screenshot(name):
         image.write(adb("exec-out", "screencap", "-p", binary=True))
 
 
+# Lo último que respondió el sistema al pedir la pantalla, para diagnosticar un fallo.
+last_dump = {"message": "", "labels": []}
+
+
 def dump():
     """Árbol de la pantalla actual, o None si el sistema no pudo entregarlo."""
-    adb("shell", "uiautomator", "dump", "/sdcard/captuia-ui.xml")
+    adb("shell", "rm", "-f", "/sdcard/captuia-ui.xml")
+    result = subprocess.run(
+        ["adb", "shell", "uiautomator", "dump", "/sdcard/captuia-ui.xml"],
+        capture_output=True, text=True,
+    )
+    last_dump["message"] = f"{result.stdout.strip()} {result.stderr.strip()}".strip()
     try:
-        return ET.fromstring(adb("exec-out", "cat", "/sdcard/captuia-ui.xml", binary=True))
+        root = ET.fromstring(adb("exec-out", "cat", "/sdcard/captuia-ui.xml", binary=True))
     except ET.ParseError:
         return None
+    last_dump["labels"] = [label(node).strip() for node in root.iter("node") if label(node).strip()]
+    return root
 
 
 def label(node):
@@ -52,6 +63,8 @@ def has(*parts):
 
 def fail(message):
     print(f"ENTREGA: FALLO - {message}")
+    print(f"ENTREGA: última respuesta al leer la pantalla: {last_dump['message']}")
+    print(f"ENTREGA: textos en pantalla: {last_dump['labels']}")
     screenshot("99-fallo-entrega")
     print(adb("logcat", "-d", "-t", "300", "*:E"))
     sys.exit(1)

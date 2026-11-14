@@ -6,6 +6,11 @@ mkdir -p qa
 cp app/build/outputs/apk/release/app-arm64-v8a-release.apk qa/captuia.apk 2>/dev/null || true
 cp app/build/outputs/apk/release/app-universal-release.apk qa/captuia-universal.apk 2>/dev/null || true
 ls -l app/build/outputs/apk/release/ > qa/apk-entrega.txt 2>/dev/null || true
+# Permisos que declara el APK de entrega, para comprobar que no incluye el de internet.
+AAPT=$(ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/build-tools/*/aapt2 2>/dev/null | sort | tail -1)
+if [ -n "$AAPT" ]; then
+  "$AAPT" dump permissions qa/captuia.apk > qa/permisos-entrega.txt 2>&1 || true
+fi
 mkdir -p qa/resultados-unitarias
 cp app/build/test-results/testDebugUnitTest/*.xml qa/resultados-unitarias/ 2>/dev/null || true
 {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Lectura de imágenes del dispositivo (las capturas nunca salen del teléfono). -->
     <uses-permission
@@ -7,6 +8,14 @@
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
+    <!--
+        CaptuIA no usa internet. La biblioteca de lectura de texto (ML Kit) trae este permiso
+        para enviar a Google estadísticas de uso; se retira para que nada pueda salir del teléfono.
+    -->
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        tools:node="remove" />
 
     <application
         android:name=".CaptuIAApplication"
@@ -25,6 +34,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Registro del canal de estadísticas de ML Kit. Sin él, la biblioteca las descarta. -->
+        <service
+            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+            tools:node="remove" />
     </application>
 
 </manifest>
