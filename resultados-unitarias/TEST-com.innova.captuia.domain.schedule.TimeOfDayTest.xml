@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.innova.captuia.domain.schedule.TimeOfDayTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T23:02:21" hostname="runnervmccnms" time="0.003">
+  <properties/>
+  <testcase name="da formato de dos digitos" classname="com.innova.captuia.domain.schedule.TimeOfDayTest" time="0.001"/>
+  <testcase name="acepta horas de 24 horas con uno o dos digitos" classname="com.innova.captuia.domain.schedule.TimeOfDayTest" time="0.0"/>
+  <testcase name="acepta solo digitos para el teclado numerico" classname="com.innova.captuia.domain.schedule.TimeOfDayTest" time="0.0"/>
+  <testcase name="acepta punto como separador" classname="com.innova.captuia.domain.schedule.TimeOfDayTest" time="0.0"/>
+  <testcase name="rechaza lo que no es una hora" classname="com.innova.captuia.domain.schedule.TimeOfDayTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

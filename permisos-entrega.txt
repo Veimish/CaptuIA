@@ -1,0 +1,11 @@
+package: com.innova.captuia
+uses-permission: name='android.permission.READ_EXTERNAL_STORAGE' maxSdkVersion='32'
+uses-permission: name='android.permission.READ_MEDIA_IMAGES'
+uses-permission: name='android.permission.READ_MEDIA_VISUAL_USER_SELECTED'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+permission: com.innova.captuia.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission: name='com.innova.captuia.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+--- coincidencias de INTERNET o TransportBackendDiscovery en el manifiesto (debe quedar vacío):

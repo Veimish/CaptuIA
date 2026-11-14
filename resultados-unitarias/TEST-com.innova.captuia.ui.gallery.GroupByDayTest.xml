@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.innova.captuia.ui.gallery.GroupByDayTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-14T23:02:21" hostname="runnervmccnms" time="0.012">
+  <properties/>
+  <testcase name="agrupa por dia del mas reciente al mas antiguo" classname="com.innova.captuia.ui.gallery.GroupByDayTest" time="0.011"/>
+  <testcase name="sin capturas no hay secciones" classname="com.innova.captuia.ui.gallery.GroupByDayTest" time="0.0"/>
+  <testcase name="dentro del dia ordena de la mas reciente a la mas antigua" classname="com.innova.captuia.ui.gallery.GroupByDayTest" time="0.0"/>
+  <testcase name="una captura de las 11 59 pm pertenece a ese dia y no al siguiente" classname="com.innova.captuia.ui.gallery.GroupByDayTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-14T23:02:21" hostname="runnervmccnms" time="0.016">
+  <properties/>
+  <testcase name="acepta una materia nueva con sus franjas" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.004"/>
+  <testcase name="rechaza una franja que se cruza con otra materia" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.0"/>
+  <testcase name="rechaza franjas de la misma materia que se cruzan entre si" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.001"/>
+  <testcase name="valida el nombre" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.002"/>
+  <testcase name="una clase puede empezar justo cuando termina otra" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.001"/>
+  <testcase name="al editar puede conservar su nombre" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.001"/>
+  <testcase name="indica cual franja tiene el problema" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.002"/>
+  <testcase name="el mismo horario en otro dia no es cruce" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.001"/>
+  <testcase name="acepta una materia sin franjas" classname="com.innova.captuia.domain.schedule.SubjectFormValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

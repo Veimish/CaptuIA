@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.innova.captuia.domain.search.SnippetBuilderTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T23:02:21" hostname="runnervmccnms" time="0.02">
+  <properties/>
+  <testcase name="une coincidencias que se solapan" classname="com.innova.captuia.domain.search.SnippetBuilderTest" time="0.011"/>
+  <testcase name="sin coincidencias muestra el inicio del texto sin resaltar" classname="com.innova.captuia.domain.search.SnippetBuilderTest" time="0.0"/>
+  <testcase name="resalta todos los terminos" classname="com.innova.captuia.domain.search.SnippetBuilderTest" time="0.001"/>
+  <testcase name="en textos largos recorta alrededor de la coincidencia" classname="com.innova.captuia.domain.search.SnippetBuilderTest" time="0.007"/>
+  <testcase name="resalta la palabra aunque se busque sin tilde" classname="com.innova.captuia.domain.search.SnippetBuilderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

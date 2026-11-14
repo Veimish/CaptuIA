@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.innova.captuia.domain.classify.CaptureClassifierTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-11-14T23:02:21" hostname="runnervmccnms" time="0.145">
+  <properties/>
+  <testcase name="solo cuentan palabras completas" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.1"/>
+  <testcase name="si el texto menciona una materia va a la carpeta de esa materia" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.004"/>
+  <testcase name="una captura sin texto o casi sin texto va a Imagenes" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.001"/>
+  <testcase name="una captura del horario completo menciona varias materias y se queda en Cursos" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.004"/>
+  <testcase name="una tarea con fecha limite va a Tareas aunque mencione un PDF y un dia" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.002"/>
+  <testcase name="un chat sobre la sustentacion va a Tareas" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.001"/>
+  <testcase name="una imagen sin texto tomada durante una clase va a Imagenes" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.0"/>
+  <testcase name="el mismo contenido fuera de clase sigue las palabras clave" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.002"/>
+  <testcase name="la mencion de la materia no distingue tildes ni mayusculas" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.001"/>
+  <testcase name="texto sin palabras clave va a Documentos" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.001"/>
+  <testcase name="contenido academico tomado durante una clase va a esa materia" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.006"/>
+  <testcase name="los limites de la franja de clase cuentan como en clase" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.007"/>
+  <testcase name="un recibo de pago va a Documentos" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.002"/>
+  <testcase name="contenido no academico tomado durante una clase no va a la materia" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.005"/>
+  <testcase name="si menciona varias materias gana la que mas aparece" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.0"/>
+  <testcase name="un horario de clases va a Cursos" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.006"/>
+  <testcase name="no distingue tildes ni mayusculas" classname="com.innova.captuia.domain.classify.CaptureClassifierTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

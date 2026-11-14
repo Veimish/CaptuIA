@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.innova.captuia.Etapa0PermisosTest" tests="5" failures="0" errors="0" skipped="0" time="188.055" timestamp="2026-11-14T23:09:44" hostname="localhost">
+  <properties>
+    <property name="device" value="emulator-5554 - 14" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="permisoYDeteccionDeCapturas" classname="com.innova.captuia.Etapa0PermisosTest" time="26.847" />
+  <testcase name="galeriaDetalleCompartirYBorrado" classname="com.innova.captuia.Etapa1GaleriaTest" time="37.02" />
+  <testcase name="lecturaDeTextoYBusqueda" classname="com.innova.captuia.Etapa2TextoYBusquedaTest" time="58.472" />
+  <testcase name="clasificacionYCarpetas" classname="com.innova.captuia.Etapa3CarpetasTest" time="29.525" />
+  <testcase name="horarioDeClases" classname="com.innova.captuia.Etapa4HorarioTest" time="33.733" />
+</testsuite>

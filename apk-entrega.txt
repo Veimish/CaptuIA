@@ -1,0 +1,7 @@
+total 86824
+-rw-r--r-- 1 runner runner 15643356 Nov 14 23:04 app-arm64-v8a-release.apk
+-rw-r--r-- 1 runner runner 11360756 Nov 14 23:04 app-armeabi-v7a-release.apk
+-rw-r--r-- 1 runner runner 45680279 Nov 14 23:04 app-universal-release.apk
+-rw-r--r-- 1 runner runner 16204934 Nov 14 23:04 app-x86_64-release.apk
+drwxr-xr-x 4 runner runner     4096 Nov 14 23:04 baselineProfiles
+-rw-r--r-- 1 runner runner     1901 Nov 14 23:04 output-metadata.json

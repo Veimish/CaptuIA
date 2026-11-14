@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.innova.captuia.domain.folder.FolderNameValidatorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T23:02:21" hostname="runnervmccnms" time="0.007">
+  <properties/>
+  <testcase name="rechaza vacio o solo espacios" classname="com.innova.captuia.domain.folder.FolderNameValidatorTest" time="0.001"/>
+  <testcase name="rechaza nombres de mas de 40 caracteres" classname="com.innova.captuia.domain.folder.FolderNameValidatorTest" time="0.001"/>
+  <testcase name="acepta un nombre nuevo y lo limpia" classname="com.innova.captuia.domain.folder.FolderNameValidatorTest" time="0.001"/>
+  <testcase name="al renombrar permite conservar el mismo nombre o cambiarle mayusculas" classname="com.innova.captuia.domain.folder.FolderNameValidatorTest" time="0.002"/>
+  <testcase name="rechaza duplicados sin importar mayusculas ni tildes" classname="com.innova.captuia.domain.folder.FolderNameValidatorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
