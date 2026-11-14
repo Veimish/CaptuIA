@@ -10,6 +10,11 @@ ls -l app/build/outputs/apk/release/ > qa/apk-entrega.txt 2>/dev/null || true
 AAPT=$(ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/build-tools/*/aapt2 2>/dev/null | sort | tail -1)
 if [ -n "$AAPT" ]; then
   "$AAPT" dump permissions qa/captuia.apk > qa/permisos-entrega.txt 2>&1 || true
+  # No debe aparecer el permiso de internet ni el registro del canal de estadísticas de ML Kit.
+  {
+    echo "--- coincidencias de INTERNET o TransportBackendDiscovery en el manifiesto (debe quedar vacío):"
+    "$AAPT" dump xmltree --file AndroidManifest.xml qa/captuia.apk | grep -E "permission.INTERNET|TransportBackendDiscovery" || true
+  } >> qa/permisos-entrega.txt 2>&1
 fi
 mkdir -p qa/resultados-unitarias
 cp app/build/test-results/testDebugUnitTest/*.xml qa/resultados-unitarias/ 2>/dev/null || true

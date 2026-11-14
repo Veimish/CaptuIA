@@ -56,9 +56,20 @@ def find(root, predicate):
     return [node for node in root.iter("node") if predicate(node)] if root is not None else []
 
 
+def subtree_labels(node):
+    return [label(child).strip() for child in node.iter("node") if label(child).strip()]
+
+
 def has(*parts):
-    """Nodo cuyo texto contiene todas las partes dadas."""
-    return lambda node: all(part in label(node) for part in parts)
+    """Elemento de la pantalla (una fila, una tarjeta o un botón) cuyos textos contienen todas las partes.
+
+    Cada texto de una fila es un nodo aparte, así que se mira el nodo junto con sus hijos.
+    Se limita a elementos con pocos textos para no confundir una fila con la lista que la contiene.
+    """
+    def predicate(node):
+        labels = subtree_labels(node)
+        return 0 < len(labels) <= 3 and all(any(part in text for text in labels) for part in parts)
+    return predicate
 
 
 def fail(message):
@@ -94,7 +105,7 @@ def tap_when_visible(description, predicate, timeout=60):
 
 def hide_keyboard():
     """Cierra el teclado en pantalla si está abierto, para que no tape el formulario."""
-    if "mInputShown=true" in adb("shell", "dumpsys", "input_method"):
+    if re.search(r"(mInputShown|mIsInputViewShown)=true", adb("shell", "dumpsys", "input_method")):
         adb("shell", "input", "keyevent", "BACK")
         time.sleep(1)
 
